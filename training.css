@@ -22,6 +22,8 @@ details[open]>summary{margin-bottom:12px}
 .plan-result h3{margin:0;font-size:18px}
 .plan-result ol{padding-left:1.5em}
 .plan-result .button{width:100%}
+.workout-sheet{white-space:pre-line;line-height:1.65;margin:12px 0 16px;font-size:15px;color:var(--ink)}
+#daily-list p{white-space:pre-line;padding:12px 0;border-bottom:1px solid var(--line);font-size:14px;color:var(--ink)}
 .field textarea{width:100%;min-width:0;border:1px solid #dcd7cd;border-radius:8px;padding:8px 10px;background:#fff;color:var(--ink);font:16px/1.5 inherit}
 .field textarea:focus-visible{outline:3px solid #b74d27;outline-offset:3px}
 .record-title{display:block;font-size:13px;overflow-wrap:anywhere}

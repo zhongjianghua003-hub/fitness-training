@@ -55,6 +55,10 @@ main{padding:25px 0 40px}.grid{display:grid;grid-template-columns:minmax(0,1.4fr
             <div class="field"><label for="wod-time">WOD 用时</label><input id="wod-time" placeholder="如 14:35" required></div>
             <div class="field"><label for="wod-breath">恢复到能说整句 <span class="unit">秒</span></label><input id="wod-breath" inputmode="numeric" placeholder="选填"></div>
           </div>
+          <div class="row">
+            <div class="field"><label for="wod-rounds">完成整轮数 <span class="unit">限时循环</span></label><input id="wod-rounds" inputmode="numeric" placeholder="如 4"></div>
+            <div class="field"><label for="wod-extra">额外次数 <span class="unit">选填</span></label><input id="wod-extra" inputmode="numeric" placeholder="如 7"></div>
+          </div>
           <p class="form-note">用时从第一轮开始到末轮完成，包含组间休息。恢复时间从末轮完成算起。</p>
           <div class="row">
             <div class="field"><label for="wod-pace">后程耐力</label><select id="wod-pace"><option value="">未记录</option><option>节奏稳定</option><option>略有掉速</option><option>明显掉速或停下</option></select></div>
@@ -111,17 +115,19 @@ main{padding:25px 0 40px}.grid{display:grid;grid-template-columns:minmax(0,1.4fr
       <div id="plan-status" class="status" role="status"></div>
     </form>
     <div id="plan-result" class="plan-result" hidden>
-      <h3 id="plan-name"></h3><p id="plan-reason"></p><ol id="plan-steps"></ol>
+      <h3 id="plan-name"></h3><p id="plan-reason"></p><div class="workout-sheet" id="plan-steps"></div>
       <button id="use-plan" class="button primary" type="button">用这套计划记录训练</button>
     </div>
   </section>
   <section class="panel history" id="daily">
     <h2>每日训练计划</h2>
-    <p>2026 年 11 月 11 日至 2027 年 1 月 30 日。先在上方选择场地和状态生成训练安排，再按日期查看当天训练。每日安排包含恢复日。</p>
+    <p>2026 年 11 月 11 日至 2027 年 1 月 30 日。选择场地和版本，查看每天的动作、计时方式和训练目标。</p>
     <div class="row fields">
       <div class="field"><label for="daily-date">训练日期</label><input id="daily-date" type="date" min="2026-11-11" max="2027-01-30"></div>
+      <div class="field"><label for="daily-scene">场地</label><select id="daily-scene"><option value="home">居家</option><option value="outdoor">户外</option></select></div>
+      <div class="field"><label for="daily-tier">训练版本</label><select id="daily-tier"><option>基础版</option><option selected>标准版</option><option>进阶版</option></select></div>
     </div>
-    <div class="plan-result" id="daily-result"><h3 id="daily-title"></h3><p id="daily-body"></p><p id="daily-scale"></p><button class="button primary" id="daily-use" type="button">记录这次训练</button></div>
+    <div class="plan-result" id="daily-result"><h3 id="daily-title"></h3><div class="workout-sheet" id="daily-body"></div><button class="button primary" id="daily-use" type="button">记录这次训练</button></div>
     <details class="baseline"><summary>查看全部日期</summary><div id="daily-list"></div></details>
   </section>
   <details class="panel history" id="official">
@@ -456,6 +462,7 @@ renderHistory();
 renderProgress();
 if (loadNotice) showStatus(loadNotice, true);
 </script>
+<script src="workouts.js"></script>
 <script src="training.js"></script>
 <script src="wellness.js"></script>
 </body>
