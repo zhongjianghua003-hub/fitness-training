@@ -215,6 +215,7 @@
   function loadSelectedWorkout() {
     syncPlanControls();
     const kind=$('plan-kind').value;
+    $('plan-tier-note').hidden=true;
     selectedDetail='';
     if(kind==='daily') {
       const ms=Date.parse(`${$('wod-date').value}T00:00:00Z`);
@@ -227,6 +228,10 @@
         $('daily-tier').value=$('plan-tier').value;
         $('daily-scene').value=$('plan-scene').value;
         const d=dayInfo(ms);
+        if(d.level!==$('plan-tier').value) {
+          $('plan-tier-note').textContent='本周是减量周，今天按简单版训练。';
+          $('plan-tier-note').hidden=false;
+        }
         $('custom-plan').value=`${d.name} · ${d.level} · ${$('plan-scene').value==='home'?'居家':'户外'}`;
         selectedDetail=d.body;
         renderDay();

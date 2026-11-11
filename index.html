@@ -46,6 +46,7 @@ main{padding:25px 0 40px}.grid{display:grid;grid-template-columns:minmax(0,1.4fr
           </div>
           <div class="field" hidden><label for="wod-plan">内部训练选择</label><select id="wod-plan"></select></div>
           <div class="field" id="plan-scene-field"><label for="plan-scene">训练场地</label><select id="plan-scene"><option value="home">居家</option><option value="outdoor">户外</option></select></div>
+          <p class="form-note" id="plan-tier-note" hidden></p>
           <div class="field" id="custom-field" hidden><label for="custom-plan">训练名称和总量</label><input id="custom-plan" maxlength="64" placeholder="如 台阶踏步 3 轮，每轮 2 分钟"></div>
           <div class="current-plan" aria-live="polite"><strong>本次训练内容</strong><p id="current-plan-content"></p></div>
           <div class="timer-box">
