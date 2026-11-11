@@ -33,12 +33,12 @@
     const day=index%7, week=Math.floor(index/7);
     const plan = day===0?conditioning[week%4]:day===2?strength[week%4]:day===4?mixed[week%4]:day===5?control[week%4]:recovery[day===1?0:day===3?1:2];
     const deload=week%4===3 && [0,2,4,5].includes(day);
-    const level=deload?'基础版':tier;
-    const option=level==='进阶版'?plan.hard:level==='基础版'?plan.easy:'按上述标准版完成。';
+    const level=deload?'简单版':tier;
+    const option=level==='熟练版'?plan.hard:level==='简单版'?plan.easy:'按上述加强版完成。';
     const outdoor=scene==='outdoor'?'户外时，原地快步可以换成同等时间或次数的跑步／短距离往返跑，先确认场地安全。':'居家时原地快步可无跳跃完成，选择稳固的支撑物。';
     const score=plan.format.includes('记录轮数')?'记录轮数：到时完成的整轮数和额外次数。':'记录：完成用时、动作调整和呼吸恢复。';
-    const prescription=level==='标准版'?plan.format:`${level}${deload?'（减量周）':''}：${option}`;
-    const movements=level==='标准版'?plan.moves:['动作顺序（按上方版本调整）：',...plan.moves];
+    const prescription=level==='加强版'?plan.format:`${level}${deload?'（减量周）':''}：${option}`;
+    const movements=level==='加强版'?plan.moves:['动作顺序（按上方版本调整）：',...plan.moves];
     const body=[plan.name,prescription,'',...movements,'',plan.rest,'',`训练目标：${plan.goal}`,'',outdoor,'热身：训练前 6–8 分钟逐渐活动全身。结束后走动放松 5 分钟。',score].join('\n');
     return {name:plan.name,level,body};
   };

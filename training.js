@@ -39,6 +39,10 @@
   }
   const today = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0,10); };
   const format = (seconds) => `${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`;
+  const displayPlanName = (name) => name
+    .replace(' · 基础版 · ', ' · 简单版 · ')
+    .replace(' · 标准版 · ', ' · 加强版 · ')
+    .replace(' · 进阶版 · ', ' · 熟练版 · ');
   function parse(raw) {
     const s = raw.trim().replace('：', ':');
     const m = /^(\d+):([0-5]\d)$/.exec(s);
@@ -79,14 +83,14 @@
     person.value = people.includes(oldPerson) ? oldPerson : '';
     $('people').replaceChildren();
     people.filter(Boolean).forEach(name => option($('people'),name,name));
-    const plans = [...new Set(records.filter(r => (r.person||'')===person.value).map(r=>r.plan))];
+    const plans = [...new Set(records.filter(r => (r.person||'')===person.value).map(r=>displayPlanName(r.plan)))];
     const select = $('compare-plan');
     const previous = select.value;
     select.replaceChildren();
     if (!plans.length) option(select,'','暂无记录');
     plans.forEach(name => option(select,name,name));
     select.value = plans.includes(previous) ? previous : (plans[0] || '');
-    const matching = records.filter(r => (r.person||'')===person.value && r.plan===select.value)
+    const matching = records.filter(r => (r.person||'')===person.value && displayPlanName(r.plan)===select.value)
       .sort((a,b)=>a.date.localeCompare(b.date)||a.created-b.created);
     const full = matching.filter(r=>r.complete==='full');
     const first=full[0], last=full.at(-1);
@@ -109,7 +113,7 @@
     [...records].sort((a,b)=>b.date.localeCompare(a.date)||b.created-a.created).forEach(r=>{
       const li=document.createElement('li'), title=document.createElement('div'), values=document.createElement('div'), actions=document.createElement('div');
       const time=document.createElement('time'); time.textContent=r.date; title.append(time);
-      const sub=document.createElement('span'); sub.className='record-title'; sub.textContent=`${r.person||'本人'} · ${r.plan}`; title.append(sub);
+      const sub=document.createElement('span'); sub.className='record-title'; sub.textContent=`${r.person||'本人'} · ${displayPlanName(r.plan)}`; title.append(sub);
       values.className='scores';
       [format(r.seconds),Number.isInteger(r.rounds)?`${r.rounds} 轮${r.extra?` + ${r.extra} 次`:''}`:'',r.breath?`恢复 ${r.breath} 秒`:'',r.pace,r.control,r.complete==='full'?'完成规定总量':'有减量或未完成'].filter(Boolean).forEach(text=>{const item=document.createElement('span');item.className='score';item.textContent=text;values.append(item);});
       actions.className='record-actions';
@@ -141,7 +145,7 @@
     if(!seconds||!plan||(raw&&(!breath||breath<1))||(rawRounds&&rounds===null)||(rawExtra&&extra===null)||(rawExtra&&!rawRounds)){$('wod-status').textContent='请填写训练名称、用时，以及有效的恢复秒数和轮数。填写额外次数时也请填写整轮数。';return;}
     const old=records.find(r=>r.id===edit), created=old?.created||Date.now();
     const record={id:old?.id||`${created}-${Math.random()}`,created,date:$('wod-date').value,person:$('person').value.trim(),plan,planDetail:selectedDetail,seconds,rounds,extra,breath,pace:$('wod-pace').value,control:$('wod-control').value,complete:$('wod-complete').value};
-    if(save(old?records.map(r=>r.id===edit?record:r):[...records,record])){reset();render();$('compare-person').value=record.person;render();$('compare-plan').value=record.plan;render();$('wod-status').textContent='训练记录已保存。';}
+    if(save(old?records.map(r=>r.id===edit?record:r):[...records,record])){reset();render();$('compare-person').value=record.person;render();$('compare-plan').value=displayPlanName(record.plan);render();$('wod-status').textContent='训练记录已保存。';}
   };
   function tick(){const seconds=Math.floor((Date.now()-clockStart)/1000);$('timer-display').textContent=format(seconds);}
   $('timer-action').onclick=()=>{
@@ -170,12 +174,12 @@
     const light=feel==='hard'||recover==='slow'||control==='variable'||(burpeeTime!==null&&burpeeTime>=600);
     const advance=!light&&regular&&feel==='easy'&&recover==='fast'&&control==='stable';
     const scene=$('scene').value;
-    const tier=light||!regular?'基础版':advance?'进阶版':'标准版';
+    const tier=light||!regular?'简单版':advance?'熟练版':'加强版';
     $('daily-tier').value=tier;
     $('daily-scene').value=scene;
     const day=dayInfo(Date.parse(`${$('daily-date').value}T00:00:00Z`));
     $('plan-name').textContent=`${scene==='home'?'居家':'户外'} · ${day.level} · ${day.name}`;
-    $('plan-reason').textContent=(light?'依据最近一课的体感、恢复、动作表现或波比跳摸底，先降低训练量。':advance?'近期训练规律、动作稳定且恢复快，可在基础版上多做一轮。':'先用基础训练量建立可重复的记录。')+(burpeeTime!==null?' 波比跳分组为带训经验参考，公安体测以岗位公告和实测为准。':'');
+    $('plan-reason').textContent=(light?'依据最近一课的体感、恢复、动作表现或波比跳摸底，先降低训练量。':advance?'近期训练规律、动作稳定且恢复快，可以尝试熟练版。':'根据近期训练基础选择当前版本。')+(burpeeTime!==null?' 波比跳分组为带训经验参考，公安体测以岗位公告和实测为准。':'');
     $('plan-steps').textContent=day.body;
     $('plan-status').textContent='';$('plan-result').hidden=false;planName=`${day.name} · ${day.level} · ${scene==='home'?'居家':'户外'}`;
     renderDay();
