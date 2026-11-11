@@ -16,10 +16,10 @@ main{padding:25px 0 40px}.grid{display:grid;grid-template-columns:minmax(0,1.4fr
 .history{margin-top:18px}.section-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.records{padding:0;margin:12px 0 0;list-style:none}.records li{display:grid;grid-template-columns:minmax(100px,1fr) minmax(0,3fr) auto;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}.records time{font-variant-numeric:tabular-nums;font-weight:700}.scores{display:flex;gap:8px;flex-wrap:wrap}.score{font-size:12px;background:#f4f1ea;border-radius:5px;padding:3px 7px}.record-actions{display:flex;gap:4px}.record-actions button{background:transparent;color:var(--ink);border:0;min-height:36px;padding:4px 7px;font-size:12px;text-decoration:underline}.record-actions button:last-child{color:var(--accent)}.empty{padding:10px 0 2px}footer{font-size:12px;color:var(--muted);margin-top:16px}
 @media(max-width:680px){.shell{width:calc(100% - 28px)}.top{height:53px}.hero .shell{padding:29px 0 34px}.lanes{width:390px;right:-215px;bottom:-225px}.grid{grid-template-columns:1fr;gap:12px}.panel{padding:15px}.form-panel{grid-row:1}.hero p{font-size:14px}main{padding-top:13px}.history{margin-top:12px}.records li{grid-template-columns:minmax(0,1fr) auto;gap:5px}.scores{grid-row:2;grid-column:1/-1}.record-actions{grid-column:2;grid-row:1}.plot{height:150px}}
 </style>
-<link rel="stylesheet" href="training.css?v=20261111-5">
+<link rel="stylesheet" href="training.css?v=20261111-6">
 </head>
 <body>
-<header class="top"><div class="shell"><div class="brand"><i aria-hidden="true"></i>基地班体能</div><nav class="quick-links" aria-label="页面导航"><a href="#workout">记录</a><a href="#planner">计划</a><a href="#feedback">反馈</a></nav></div></header>
+<header class="top"><div class="shell"><div class="brand"><i aria-hidden="true"></i>基地班体能</div><nav class="quick-links" aria-label="页面导航"><a href="#workout">记录</a><a href="#wod-history">成绩</a><a href="#feedback">反馈</a></nav></div></header>
 <section class="hero">
   <div class="lanes" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
   <div class="shell"><h1>体能训练记录</h1><p>居家和户外都能练。记下每次 WOD 的用时、呼吸恢复和动作状态，比较自己的变化。</p></div>
@@ -79,6 +79,14 @@ main{padding:25px 0 40px}.grid{display:grid;grid-template-columns:minmax(0,1.4fr
       </form>
     </section>
   </div>
+  <details class="panel history" id="wod-history">
+    <summary>查看训练记录</summary>
+    <div class="section-head"><h2>训练记录</h2><button id="wod-export" class="button" type="button" disabled>导出 CSV</button></div>
+    <p id="wod-empty">还没有 WOD 记录。</p>
+    <ul id="wod-records" class="records"></ul>
+  </details>
+  <details class="panel history" id="advanced">
+    <summary>更多功能</summary>
   <details class="panel history" id="wellness">
     <summary>记录今日状态</summary>
     <p>选今天的主观感受。建议每天在相近时间填写，观察自己的变化。</p>
@@ -93,12 +101,6 @@ main{padding:25px 0 40px}.grid{display:grid;grid-template-columns:minmax(0,1.4fr
     <p id="well-note">填写两天后可比较状态。每天保存一次，同一天再次保存会更新。</p>
     <details class="baseline"><summary>查看状态记录</summary><div id="well-history"></div></details>
     <p>状态是自己的感受记录。结合相同 WOD 的用时、后程节奏和动作稳定性看训练变化。</p>
-  </details>
-  <details class="panel history" id="wod-history">
-    <summary>查看训练记录</summary>
-    <div class="section-head"><h2>训练记录</h2><button id="wod-export" class="button" type="button" disabled>导出 CSV</button></div>
-    <p id="wod-empty">还没有 WOD 记录。</p>
-    <ul id="wod-records" class="records"></ul>
   </details>
   <details class="panel history" id="planner">
     <summary>按体感调整计划</summary><p>根据场地、最近的强度、恢复和动作状态选择下一课的训练量。</p>
@@ -181,6 +183,7 @@ main{padding:25px 0 40px}.grid{display:grid;grid-template-columns:minmax(0,1.4fr
     <p id="empty" class="empty">还没有记录。先保存一次成绩，作为自己的起点。</p>
     <ul id="records" class="records"></ul>
   </section>
+  </details>
   </details>
   <details class="panel history" id="feedback">
     <summary>投诉与建议</summary><p>选类型、写清问题。点击「打开邮件」后，在自己的邮件应用里确认发送。</p>
@@ -471,8 +474,8 @@ renderHistory();
 renderProgress();
 if (loadNotice) showStatus(loadNotice, true);
 </script>
-<script src="workouts.js?v=20261111-5"></script>
-<script src="training.js?v=20261111-5"></script>
+<script src="workouts.js?v=20261111-6"></script>
+<script src="training.js?v=20261111-6"></script>
 <script src="wellness.js?v=20261111-3"></script>
 </body>
 </html>
