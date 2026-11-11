@@ -16,7 +16,7 @@ main{padding:25px 0 40px}.grid{display:grid;grid-template-columns:minmax(0,1.4fr
 .history{margin-top:18px}.section-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.records{padding:0;margin:12px 0 0;list-style:none}.records li{display:grid;grid-template-columns:minmax(100px,1fr) minmax(0,3fr) auto;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}.records time{font-variant-numeric:tabular-nums;font-weight:700}.scores{display:flex;gap:8px;flex-wrap:wrap}.score{font-size:12px;background:#f4f1ea;border-radius:5px;padding:3px 7px}.record-actions{display:flex;gap:4px}.record-actions button{background:transparent;color:var(--ink);border:0;min-height:36px;padding:4px 7px;font-size:12px;text-decoration:underline}.record-actions button:last-child{color:var(--accent)}.empty{padding:10px 0 2px}footer{font-size:12px;color:var(--muted);margin-top:16px}
 @media(max-width:680px){.shell{width:calc(100% - 28px)}.top{height:53px}.hero .shell{padding:29px 0 34px}.lanes{width:390px;right:-215px;bottom:-225px}.grid{grid-template-columns:1fr;gap:12px}.panel{padding:15px}.form-panel{grid-row:1}.hero p{font-size:14px}main{padding-top:13px}.history{margin-top:12px}.records li{grid-template-columns:minmax(0,1fr) auto;gap:5px}.scores{grid-row:2;grid-column:1/-1}.record-actions{grid-column:2;grid-row:1}.plot{height:150px}}
 </style>
-<link rel="stylesheet" href="training.css?v=20261111-3">
+<link rel="stylesheet" href="training.css?v=20261111-5">
 </head>
 <body>
 <header class="top"><div class="shell"><div class="brand"><i aria-hidden="true"></i>基地班体能</div><nav class="quick-links" aria-label="页面导航"><a href="#workout">记录</a><a href="#planner">计划</a><a href="#feedback">反馈</a></nav></div></header>
@@ -26,8 +26,8 @@ main{padding:25px 0 40px}.grid{display:grid;grid-template-columns:minmax(0,1.4fr
 </section>
 <main class="shell">
   <div class="grid" id="workout">
-    <section class="panel wod-progress" aria-labelledby="wod-progress-title">
-      <div class="section-head"><h2 id="wod-progress-title">同一训练的进步</h2></div>
+    <details class="panel wod-progress" aria-labelledby="wod-progress-title">
+      <summary id="wod-progress-title">查看训练进步</summary>
       <p>按学员和训练版本查看。减量或未完成的训练保留记录，按完整完成的记录计算变化。</p>
       <div class="row progress-filters">
         <div class="field"><label for="compare-person">学员</label><select id="compare-person"><option value="">本人</option></select></div>
@@ -35,7 +35,7 @@ main{padding:25px 0 40px}.grid{display:grid;grid-template-columns:minmax(0,1.4fr
       </div>
       <div class="wod-stats" aria-live="polite" id="wod-stats"></div>
       <p id="wod-compare-hint">保存一次 WOD，建立自己的起点。</p>
-    </section>
+    </details>
     <section class="panel form-panel" aria-labelledby="wod-form-title">
       <h2 id="wod-form-title">本次训练计划</h2>
       <form id="wod-form">
@@ -58,10 +58,10 @@ main{padding:25px 0 40px}.grid{display:grid;grid-template-columns:minmax(0,1.4fr
             <div class="field"><label for="person">学员代号 <span class="unit">选填</span></label><input id="person" maxlength="24" list="people" placeholder="自记留空，带课可填代号"><datalist id="people"></datalist></div>
           </div>
           <p class="form-note">记录保存在当前手机或电脑的浏览器。代号方便同一设备区分记录。</p>
-          <div class="row">
-            <div class="field"><label for="wod-time">WOD 用时</label><input id="wod-time" placeholder="如 14:35" required></div>
-            <div class="field"><label for="wod-breath">恢复到能说整句 <span class="unit">秒</span></label><input id="wod-breath" inputmode="numeric" placeholder="选填"></div>
-          </div>
+          <div class="field"><label for="wod-time">本次用时</label><input id="wod-time" placeholder="如 14:35" required></div>
+          <details class="baseline" id="training-details">
+          <summary>补充训练表现（选填）</summary>
+          <div class="field"><label for="wod-breath">恢复到能说整句 <span class="unit">秒</span></label><input id="wod-breath" inputmode="numeric" placeholder="选填"></div>
           <div class="row">
             <div class="field"><label for="wod-rounds">完成整轮数 <span class="unit">限时循环</span></label><input id="wod-rounds" inputmode="numeric" placeholder="如 4"></div>
             <div class="field"><label for="wod-extra">额外次数 <span class="unit">选填</span></label><input id="wod-extra" inputmode="numeric" placeholder="如 7"></div>
@@ -72,14 +72,15 @@ main{padding:25px 0 40px}.grid{display:grid;grid-template-columns:minmax(0,1.4fr
             <div class="field"><label for="wod-control">动作掌控</label><select id="wod-control"><option value="">未记录</option><option>动作稳定</option><option>偶尔失稳</option><option>多次失稳</option></select></div>
           </div>
           <div class="field"><label for="wod-complete">完成情况</label><select id="wod-complete"><option value="full">完成规定总量</option><option value="reduced">有减量或未完成</option></select></div>
+          </details>
         </div>
         <div class="actions"><button id="wod-cancel" class="button" type="button" hidden>取消修改</button><button class="button primary" type="submit" id="wod-save">保存训练</button></div>
         <div id="wod-status" class="status" role="status"></div>
       </form>
     </section>
   </div>
-  <section class="panel history" id="wellness">
-    <div class="section-head"><h2>今日状态</h2><span class="unit">每天约 30 秒</span></div>
+  <details class="panel history" id="wellness">
+    <summary>记录今日状态</summary>
     <p>选今天的主观感受。建议每天在相近时间填写，观察自己的变化。</p>
     <form id="wellness-form"><div class="plan-fields fields">
       <div class="field"><label for="well-date">日期</label><input id="well-date" type="date" required></div>
@@ -92,14 +93,15 @@ main{padding:25px 0 40px}.grid{display:grid;grid-template-columns:minmax(0,1.4fr
     <p id="well-note">填写两天后可比较状态。每天保存一次，同一天再次保存会更新。</p>
     <details class="baseline"><summary>查看状态记录</summary><div id="well-history"></div></details>
     <p>状态是自己的感受记录。结合相同 WOD 的用时、后程节奏和动作稳定性看训练变化。</p>
-  </section>
-  <section class="panel history" id="wod-history">
-    <div class="section-head"><h2>WOD 历史</h2><button id="wod-export" class="button" type="button" disabled>导出 CSV</button></div>
+  </details>
+  <details class="panel history" id="wod-history">
+    <summary>查看训练记录</summary>
+    <div class="section-head"><h2>训练记录</h2><button id="wod-export" class="button" type="button" disabled>导出 CSV</button></div>
     <p id="wod-empty">还没有 WOD 记录。</p>
     <ul id="wod-records" class="records"></ul>
-  </section>
-  <section class="panel history" id="planner">
-    <h2>生成下一次训练计划</h2><p>根据场地、最近的强度、恢复和动作状态选择下一课的训练量。</p>
+  </details>
+  <details class="panel history" id="planner">
+    <summary>按体感调整计划</summary><p>根据场地、最近的强度、恢复和动作状态选择下一课的训练量。</p>
     <form id="plan-form">
       <div class="plan-fields fields">
         <div class="field"><label for="scene">训练场地</label><select id="scene"><option value="home">居家</option><option value="outdoor">户外</option></select></div>
@@ -125,9 +127,9 @@ main{padding:25px 0 40px}.grid{display:grid;grid-template-columns:minmax(0,1.4fr
       <h3 id="plan-name"></h3><p id="plan-reason"></p><div class="workout-sheet" id="plan-steps"></div>
       <button id="use-plan" class="button primary" type="button">用这套计划记录训练</button>
     </div>
-  </section>
-  <section class="panel history" id="daily">
-    <h2>每日训练计划</h2>
+  </details>
+  <details class="panel history" id="daily">
+    <summary>查看全部每日计划</summary>
     <p>2026 年 11 月 11 日至 2027 年 1 月 30 日。选择场地和版本，查看每天的动作、计时方式和训练目标。</p>
     <div class="row fields">
       <div class="field"><label for="daily-date">训练日期</label><input id="daily-date" type="date" min="2026-11-11" max="2027-01-30"></div>
@@ -136,7 +138,7 @@ main{padding:25px 0 40px}.grid{display:grid;grid-template-columns:minmax(0,1.4fr
     </div>
     <div class="plan-result" id="daily-result"><h3 id="daily-title"></h3><div class="workout-sheet" id="daily-body"></div><button class="button primary" id="daily-use" type="button">记录这次训练</button></div>
     <details class="baseline"><summary>查看全部日期</summary><div id="daily-list"></div></details>
-  </section>
+  </details>
   <details class="panel history" id="official">
     <summary>公安体测成绩（有实测再填）</summary>
   <div class="grid">
@@ -180,8 +182,8 @@ main{padding:25px 0 40px}.grid{display:grid;grid-template-columns:minmax(0,1.4fr
     <ul id="records" class="records"></ul>
   </section>
   </details>
-  <section class="panel history" id="feedback">
-    <h2>投诉与建议</h2><p>选类型、写清问题。点击「打开邮件」后，在自己的邮件应用里确认发送。</p>
+  <details class="panel history" id="feedback">
+    <summary>投诉与建议</summary><p>选类型、写清问题。点击「打开邮件」后，在自己的邮件应用里确认发送。</p>
     <form id="feedback-form">
       <div class="fields">
         <div class="field"><label for="feedback-kind">反馈类型</label><select id="feedback-kind"><option>功能建议</option><option>问题报告</option><option>投诉</option></select></div>
@@ -191,7 +193,7 @@ main{padding:25px 0 40px}.grid{display:grid;grid-template-columns:minmax(0,1.4fr
       <p>接收邮箱 <a href="mailto:411515586@qq.com">411515586@qq.com</a></p>
       <div id="feedback-status" class="status" role="status"></div>
     </form>
-  </section>
+  </details>
   <footer>训练与体测记录保存在当前浏览器。换设备或清理浏览器数据前，可先导出 CSV 留存。</footer>
 </main>
 <script>
@@ -469,8 +471,8 @@ renderHistory();
 renderProgress();
 if (loadNotice) showStatus(loadNotice, true);
 </script>
-<script src="workouts.js?v=20261111-3"></script>
-<script src="training.js?v=20261111-4"></script>
+<script src="workouts.js?v=20261111-5"></script>
+<script src="training.js?v=20261111-5"></script>
 <script src="wellness.js?v=20261111-3"></script>
 </body>
 </html>

@@ -31,6 +31,13 @@
   ];
   window.fitnessWorkout = (index, tier, scene) => {
     const day=index%7, week=Math.floor(index/7);
+    if(day===1||day===3) {
+      const distance=tier==='简单版'?'1–2 公里':tier==='熟练版'?'3–5 公里':'3 公里';
+      const indoor=tier==='简单版'?'原地走或踏步 10–15 分钟':tier==='熟练版'?'原地快步或踏步 25–35 分钟':'原地快步或踏步 20–30 分钟';
+      const training=scene==='home'?indoor:`轻松跑或走跑 ${distance}`;
+      const body=['轻松有氧',`${tier} · ${training}`,'','保持能说完整句子的速度。','跑前热身 5–8 分钟，结束后走路放松。','记录：跑步距离、用时或室内活动时长。'].join('\n');
+      return {name:'轻松有氧',level:tier,body};
+    }
     const plan = day===0?conditioning[week%4]:day===2?strength[week%4]:day===4?mixed[week%4]:day===5?control[week%4]:recovery[day===1?0:day===3?1:2];
     const deload=week%4===3 && [0,2,4,5].includes(day);
     const level=deload?'简单版':tier;

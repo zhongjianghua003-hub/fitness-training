@@ -1,4 +1,8 @@
 (() => {
+  document.querySelectorAll('.quick-links a').forEach(link => link.addEventListener('click', () => {
+    const target = document.querySelector(link.getAttribute('href'));
+    if (target && target.tagName === 'DETAILS') target.open = true;
+  }));
   'use strict';
   const $ = (id) => document.getElementById(id);
   const key = 'fitness-wod.v1';
@@ -127,6 +131,7 @@
         $('plan-tier').value = r.plan===presets[0] ? '简单版' : r.plan===presets[4] ? '熟练版' : '加强版';
         syncPlanControls();
         $('wod-pace').value=r.pace||''; $('wod-control').value=r.control||''; $('wod-complete').value=r.complete;
+        $('training-details').open=!!(r.breath || Number.isInteger(r.rounds) || r.pace || r.control || r.complete==='reduced');
         selectedDetail=r.planDetail||''; renderSelectedPlan();
         $('wod-cancel').hidden=false; $('wod-form-title').textContent='修改训练记录'; $('wod-date').focus();
       };
@@ -147,7 +152,7 @@
     const rawExtra=$('wod-extra').value.trim();
     const extra=rawExtra&&/^\d+$/.test(rawExtra)?Number(rawExtra):null;
     const plan=$('wod-plan').value==='自定义'?$('custom-plan').value.trim():$('wod-plan').value;
-    if(!seconds||!plan||(raw&&(!breath||breath<1))||(rawRounds&&rounds===null)||(rawExtra&&extra===null)||(rawExtra&&!rawRounds)){$('wod-status').textContent='请填写训练名称、用时，以及有效的恢复秒数和轮数。填写额外次数时也请填写整轮数。';return;}
+    if(!seconds||!plan||(raw&&(!breath||breath<1))||(rawRounds&&rounds===null)||(rawExtra&&extra===null)||(rawExtra&&!rawRounds)){$('training-details').open=true;$('wod-status').textContent='请填写训练名称、用时，以及有效的恢复秒数和轮数。填写额外次数时也请填写整轮数。';return;}
     const old=records.find(r=>r.id===edit), created=old?.created||Date.now();
     const record={id:old?.id||`${created}-${Math.random()}`,created,date:$('wod-date').value,person:$('person').value.trim(),plan,planDetail:selectedDetail,seconds,rounds,extra,breath,pace:$('wod-pace').value,control:$('wod-control').value,complete:$('wod-complete').value};
     if(save(old?records.map(r=>r.id===edit?record:r):[...records,record])){reset();render();$('compare-person').value=record.person;render();$('compare-plan').value=displayPlanName(record.plan);render();$('wod-status').textContent='训练记录已保存。';}
