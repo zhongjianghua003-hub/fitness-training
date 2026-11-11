@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#171b27">
+<title>基地班体能训练</title>
+<style>
+:root{color-scheme:light;--ink:#171b27;--muted:#565c68;--paper:#f7f5f0;--card:#fffefa;--line:#e6e2da;--accent:#bc3d19;--orange:#ff8655;--green:#1f704b;--radius:16px}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.55 Inter,system-ui,"PingFang SC","Microsoft YaHei",sans-serif}button,input,select{font:inherit}button{cursor:pointer}button:disabled{cursor:default;opacity:.52}a{color:inherit}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #b74d27;outline-offset:3px}
+.shell{width:min(1080px,100% - 48px);margin:auto}.top{height:62px;background:var(--ink);color:#fff;display:flex;align-items:center;border-bottom:1px solid #ffffff1f}.top .shell{display:flex;align-items:center;justify-content:space-between}.brand{font-weight:800;letter-spacing:.07em;display:flex;gap:10px;align-items:center}.brand i{width:16px;height:16px;border-radius:4px 4px 4px 0;background:var(--orange);transform:skew(-12deg);display:inline-block}.top a{font-size:13px;color:#dedfe5;text-decoration:none}.top a:hover{text-decoration:underline}
+.hero{background:var(--ink);color:#fff;position:relative;isolation:isolate;overflow:hidden}.hero .shell{padding:42px 0 46px}.hero h1{font-size:clamp(33px,5vw,58px);letter-spacing:-.065em;line-height:1.14;margin:0 0 12px;font-weight:850}.hero p{color:#dadbe1;margin:0;max-width:29em;font-size:15px}.lanes{position:absolute;pointer-events:none;z-index:-1;right:-70px;bottom:-142px;width:min(57vw,610px);height:355px;transform:rotate(-19deg);opacity:.48}.lanes i{display:block;position:absolute;inset:0;border:1px solid #ff8655;border-radius:999px}.lanes i:nth-child(2){inset:18px}.lanes i:nth-child(3){inset:36px}.lanes i:nth-child(4){inset:54px}.lanes i:nth-child(5){inset:72px}
+main{padding:25px 0 40px}.grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:18px;align-items:start}.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:21px;min-width:0}.panel h2{margin:0;font-size:19px;letter-spacing:-.03em}.panel p{margin:4px 0 0;color:var(--muted);font-size:13px}.tabs{display:flex;gap:6px;overflow-x:auto;padding:3px;margin:15px -3px 14px}.tab{background:#f4f1ea;color:var(--ink);border:1px solid transparent;border-radius:8px;white-space:nowrap;padding:7px 10px;font-size:13px;font-weight:650;min-height:39px}.tab[aria-pressed=true]{background:#fae6dd;border-color:#f1c7b5;color:#8e2e13}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:11px 0 13px;border-bottom:1px solid var(--line)}.stats span{display:block;color:var(--muted);font-size:12px}.stats strong{font-size:clamp(16px,2.5vw,22px);letter-spacing:-.05em;font-variant-numeric:tabular-nums}.stats small{font-size:11px;font-weight:600}.positive{color:var(--green)}.negative{color:var(--accent)}.plot{position:relative;height:174px;margin-top:13px}.plot canvas{display:block;width:100%;height:100%}.plot .hint{position:absolute;inset:0;display:grid;place-content:center;text-align:center;background:repeating-linear-gradient(to bottom,transparent 0,transparent 32px,#f0ede6 33px,#f0ede6 34px);padding:10px}.plot .hint span{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 12px;color:var(--muted);font-size:13px}[hidden]{display:none!important}
+.fields{display:grid;gap:12px;margin-top:14px}.field{display:grid;gap:5px}.field label{font-weight:720;font-size:13px}.field .unit{font-weight:450;color:var(--muted)}.field input,.field select{width:100%;min-width:0;min-height:43px;border:1px solid #dcd7cd;border-radius:8px;color:var(--ink);background:#fff;padding:8px 10px;font-size:16px}.field input::placeholder{color:#7b7e86;font-size:14px}.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.actions{display:flex;gap:8px;align-items:center;margin-top:15px}.button{border:1px solid var(--line);background:var(--card);border-radius:8px;color:var(--ink);padding:8px 11px;min-height:40px;font-weight:700;font-size:13px}.button.primary{border-color:var(--accent);background:var(--accent);color:#fff;flex:1;min-height:44px}.button:hover:not(:disabled){filter:brightness(.95)}.status{min-height:21px;padding-top:4px;color:var(--green);font-size:13px}.status.error{color:var(--accent)}
+.history{margin-top:18px}.section-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.records{padding:0;margin:12px 0 0;list-style:none}.records li{display:grid;grid-template-columns:minmax(100px,1fr) minmax(0,3fr) auto;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}.records time{font-variant-numeric:tabular-nums;font-weight:700}.scores{display:flex;gap:8px;flex-wrap:wrap}.score{font-size:12px;background:#f4f1ea;border-radius:5px;padding:3px 7px}.record-actions{display:flex;gap:4px}.record-actions button{background:transparent;color:var(--ink);border:0;min-height:36px;padding:4px 7px;font-size:12px;text-decoration:underline}.record-actions button:last-child{color:var(--accent)}.empty{padding:10px 0 2px}footer{font-size:12px;color:var(--muted);margin-top:16px}
+@media(max-width:680px){.shell{width:calc(100% - 28px)}.top{height:53px}.hero .shell{padding:29px 0 34px}.lanes{width:390px;right:-215px;bottom:-225px}.grid{grid-template-columns:1fr;gap:12px}.panel{padding:15px}.form-panel{grid-row:1}.hero p{font-size:14px}main{padding-top:13px}.history{margin-top:12px}.records li{grid-template-columns:minmax(0,1fr) auto;gap:5px}.scores{grid-row:2;grid-column:1/-1}.record-actions{grid-column:2;grid-row:1}.plot{height:150px}}
+</style>
+<link rel="stylesheet" href="training.css">
+</head>
+<body>
+<header class="top"><div class="shell"><div class="brand"><i aria-hidden="true"></i>基地班体能</div><nav class="quick-links" aria-label="页面导航"><a href="#workout">记录</a><a href="#planner">计划</a><a href="#feedback">反馈</a></nav></div></header>
+<section class="hero">
+  <div class="lanes" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="shell"><h1>体能训练记录</h1><p>居家和户外都能练。记下每次 WOD 的用时、呼吸恢复和动作状态，比较自己的变化。</p></div>
+</section>
+<main class="shell">
+  <section class="panel history" id="wellness">
+    <div class="section-head"><h2>今日状态</h2><span class="unit">每天约 30 秒</span></div>
+    <p>选今天的主观感受。建议每天在相近时间填写，观察自己的变化。</p>
+    <form id="wellness-form"><div class="plan-fields fields">
+      <div class="field"><label for="well-date">日期</label><input id="well-date" type="date" required></div>
+      <div class="field"><label for="well-person">学员代号（选填）</label><input id="well-person" maxlength="24" placeholder="自记留空"></div>
+      <div class="field"><label for="well-sleep">昨晚睡眠</label><select id="well-sleep" required><option value="">请选择</option><option value="1">较差</option><option value="2">一般</option><option value="3">良好</option></select></div>
+      <div class="field"><label for="well-energy">今日精力</label><select id="well-energy" required><option value="">请选择</option><option value="1">低</option><option value="2">一般</option><option value="3">充足</option></select></div>
+      <div class="field"><label for="well-soreness">肌肉酸痛</label><select id="well-soreness" required><option value="">请选择</option><option value="1">明显</option><option value="2">轻微</option><option value="3">没有</option></select></div>
+    </div><div class="actions"><button class="button primary" type="submit">保存今日状态</button></div><p id="well-status" role="status"></p></form>
+    <div class="wod-stats" id="well-summary" aria-live="polite"></div>
+    <p id="well-note">填写两天后可比较状态。每天保存一次，同一天再次保存会更新。</p>
+    <details class="baseline"><summary>查看状态记录</summary><div id="well-history"></div></details>
+    <p>状态是自己的感受记录。结合相同 WOD 的用时、后程节奏和动作稳定性看训练变化。</p>
+  </section>
+  <div class="grid" id="workout">
+    <section class="panel wod-progress" aria-labelledby="wod-progress-title">
+      <div class="section-head"><h2 id="wod-progress-title">同一训练的进步</h2></div>
+      <p>按学员和训练版本查看。减量或未完成的训练保留记录，按完整完成的记录计算变化。</p>
+      <div class="row progress-filters">
+        <div class="field"><label for="compare-person">学员</label><select id="compare-person"><option value="">本人</option></select></div>
+        <div class="field"><label for="compare-plan">训练版本</label><select id="compare-plan"><option value="">暂无记录</option></select></div>
+      </div>
+      <div class="wod-stats" aria-live="polite" id="wod-stats"></div>
+      <p id="wod-compare-hint">保存一次 WOD，建立自己的起点。</p>
+    </section>
+    <section class="panel form-panel" aria-labelledby="wod-form-title">
+      <h2 id="wod-form-title">记录本次 WOD</h2>
+      <div class="timer-box">
+        <div><div class="timer-caption" id="timer-caption">现场秒表</div><output id="timer-display">00:00</output></div>
+        <div class="timer-buttons"><button type="button" class="button primary" id="timer-action">开始 WOD</button><button type="button" class="button" id="timer-reset" hidden>重置</button></div>
+      </div>
+      <form id="wod-form">
+        <div class="fields">
+          <div class="row">
+            <div class="field"><label for="wod-date">训练日期</label><input id="wod-date" type="date" required></div>
+            <div class="field"><label for="person">学员代号 <span class="unit">选填</span></label><input id="person" maxlength="24" list="people" placeholder="自记留空，带课可填代号"><datalist id="people"></datalist></div>
+          </div>
+          <div class="field"><label for="wod-plan">训练版本</label><select id="wod-plan"></select></div>
+          <div class="field" id="custom-field" hidden><label for="custom-plan">训练名称和总量</label><input id="custom-plan" maxlength="64" placeholder="如 台阶踏步 3 轮，每轮 2 分钟"></div>
+          <div class="row">
+            <div class="field"><label for="wod-time">WOD 用时</label><input id="wod-time" placeholder="如 14:35" required></div>
+            <div class="field"><label for="wod-breath">恢复到能说整句 <span class="unit">秒</span></label><input id="wod-breath" inputmode="numeric" placeholder="选填"></div>
+          </div>
+          <p class="form-note">用时从第一轮开始到末轮完成，包含组间休息。恢复时间从末轮完成算起。</p>
+          <div class="row">
+            <div class="field"><label for="wod-pace">后程耐力</label><select id="wod-pace"><option value="">未记录</option><option>节奏稳定</option><option>略有掉速</option><option>明显掉速或停下</option></select></div>
+            <div class="field"><label for="wod-control">动作掌控</label><select id="wod-control"><option value="">未记录</option><option>动作稳定</option><option>偶尔失稳</option><option>多次失稳</option></select></div>
+          </div>
+          <div class="field"><label for="wod-complete">完成情况</label><select id="wod-complete"><option value="full">完成规定总量</option><option value="reduced">有减量或未完成</option></select></div>
+        </div>
+        <div class="actions"><button id="wod-cancel" class="button" type="button" hidden>取消修改</button><button class="button primary" type="submit" id="wod-save">保存训练</button></div>
+        <div id="wod-status" class="status" role="status"></div>
+      </form>
+    </section>
+  </div>
+  <section class="panel history" id="wod-history">
+    <div class="section-head"><h2>WOD 历史</h2><button id="wod-export" class="button" type="button" disabled>导出 CSV</button></div>
+    <p id="wod-empty">还没有 WOD 记录。</p>
+    <ul id="wod-records" class="records"></ul>
+  </section>
+  <section class="panel history" id="planner">
+    <h2>生成下一次训练计划</h2><p>根据场地、最近的强度、恢复和动作状态选择下一课的训练量。</p>
+    <form id="plan-form">
+      <div class="plan-fields fields">
+        <div class="field"><label for="scene">训练场地</label><select id="scene"><option value="home">居家</option><option value="outdoor">户外</option></select></div>
+        <div class="field"><label for="effort-mode">强度记录方式</label><select id="effort-mode"><option value="feel">说话和呼吸体感</option><option value="rpe">RPE 自评</option></select></div>
+        <div class="field" id="feel-field"><label for="feel">最近一课的体感</label><select id="feel"><option value="unknown">第一次训练或说不准</option><option value="easy">轻松，能说完整句</option><option value="steady">有点喘，能说短句</option><option value="hard">很喘，难以说短句</option></select></div>
+        <div class="field" id="rpe-field" hidden><label for="rpe">最近一课 RPE（0–10）</label><input id="rpe" type="number" min="0" max="10" step="1" placeholder="0 很轻松，10 最大用力"></div>
+        <div class="field"><label for="recovery">恢复到能说整句</label><select id="recovery"><option value="unknown">未记录</option><option value="fast">约 1 分钟内</option><option value="normal">约 1–2 分钟</option><option value="slow">超过 2 分钟</option></select></div>
+        <div class="field"><label for="control">后程节奏和动作</label><select id="control"><option value="unknown">未记录</option><option value="stable">节奏和动作都稳定</option><option value="variable">明显掉速或动作失稳</option></select></div>
+        <div class="field"><label for="experience">近期训练基础</label><select id="experience"><option value="new">刚开始或近期训练少</option><option value="regular">有规律训练，近两课均完成</option></select></div>
+      </div>
+      <details class="baseline">
+        <summary>选填摸底成绩</summary>
+        <p>户外可做 6 分钟走跑，居家可做 3 分钟原地踏步，观察是否能连续完成及恢复情况。两项暂不用于自动分级。100 个波比跳仅供平时已熟练、习惯高强度训练的人选用。</p>
+        <div class="row fields">
+          <div class="field"><label for="baseline-type">摸底项目</label><select id="baseline-type"><option value="">未测</option><option value="walk">6 分钟走跑</option><option value="step">3 分钟原地踏步</option><option value="burpee">100 个波比跳</option></select></div>
+          <div class="field"><label id="baseline-label" for="baseline-value">摸底结果</label><input id="baseline-value" disabled></div>
+        </div>
+      </details>
+      <div class="actions"><button class="button primary" type="submit">生成训练安排</button></div>
+      <div id="plan-status" class="status" role="status"></div>
+    </form>
+    <div id="plan-result" class="plan-result" hidden>
+      <h3 id="plan-name"></h3><p id="plan-reason"></p><ol id="plan-steps"></ol>
+      <button id="use-plan" class="button primary" type="button">用这套计划记录训练</button>
+    </div>
+  </section>
+  <section class="panel history" id="daily">
+    <h2>每日训练计划</h2>
+    <p>2026 年 11 月 11 日至 2027 年 1 月 30 日。先在上方选择场地和状态生成训练安排，再按日期查看当天训练。每日安排包含恢复日。</p>
+    <div class="row fields">
+      <div class="field"><label for="daily-date">训练日期</label><input id="daily-date" type="date" min="2026-11-11" max="2027-01-30"></div>
+    </div>
+    <div class="plan-result" id="daily-result"><h3 id="daily-title"></h3><p id="daily-body"></p><p id="daily-scale"></p><button class="button primary" id="daily-use" type="button">记录这次训练</button></div>
+    <details class="baseline"><summary>查看全部日期</summary><div id="daily-list"></div></details>
+  </section>
+  <details class="panel history" id="official">
+    <summary>公安体测成绩（有实测再填）</summary>
+  <div class="grid">
+    <section class="panel" aria-labelledby="progress-title">
+      <h2 id="progress-title">我的进步</h2>
+      <div class="tabs" role="group" aria-label="查看项目">
+        <button class="tab" type="button" data-metric="shuttle" aria-pressed="true">折返</button>
+        <button class="tab" type="button" data-metric="jump" aria-pressed="false">摸高</button>
+        <button class="tab" type="button" data-metric="run1000" aria-pressed="false">1000 米</button>
+        <button class="tab" type="button" data-metric="run800" aria-pressed="false">800 米</button>
+      </div>
+      <div class="stats" aria-live="polite">
+        <div><span>首次</span><strong id="first">—</strong></div>
+        <div><span>最近</span><strong id="latest">—</strong></div>
+        <div><span>比首次</span><strong id="change">—</strong></div>
+      </div>
+      <div class="plot"><canvas id="trend" role="img" aria-label="成绩趋势图"></canvas><div id="plot-hint" class="hint"><span>同一项目记录两次后显示趋势</span></div></div>
+    </section>
+    <section class="panel form-panel" aria-labelledby="form-title">
+      <h2 id="form-title">记录成绩</h2><p>填写当天测过的项目，其他留空。</p>
+      <form id="score-form">
+        <div class="fields">
+          <div class="field"><label for="date">日期</label><input id="date" type="date" required></div>
+          <div class="row">
+            <div class="field"><label for="shuttle">10 米×4 折返 <span class="unit">秒</span></label><input id="shuttle" inputmode="decimal" placeholder="如 13.2" autocomplete="off"></div>
+            <div class="field"><label for="jump">摸高 <span class="unit">厘米</span></label><input id="jump" inputmode="decimal" placeholder="如 255" autocomplete="off"></div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="distance">长跑项目</label><select id="distance"><option value="run1000">1000 米</option><option value="run800">800 米</option></select></div>
+            <div class="field"><label for="run">长跑用时</label><input id="run" inputmode="text" placeholder="如 4:25 或 265 秒" autocomplete="off"></div>
+          </div>
+        </div>
+        <div class="actions"><button id="cancel" class="button" type="button" hidden>取消修改</button><button id="save" class="button primary" type="submit">保存成绩</button></div>
+        <div id="status" class="status" role="status"></div>
+      </form>
+    </section>
+  </div>
+  <section id="history" class="panel history" aria-labelledby="history-title">
+    <div class="section-head"><h2 id="history-title">历史记录</h2><button id="export" class="button" type="button" disabled>导出 CSV</button></div>
+    <p id="empty" class="empty">还没有记录。先保存一次成绩，作为自己的起点。</p>
+    <ul id="records" class="records"></ul>
+  </section>
+  </details>
+  <section class="panel history" id="feedback">
+    <h2>投诉与建议</h2><p>选类型、写清问题。点击「打开邮件」后，在自己的邮件应用里确认发送。</p>
+    <form id="feedback-form">
+      <div class="fields">
+        <div class="field"><label for="feedback-kind">反馈类型</label><select id="feedback-kind"><option>功能建议</option><option>问题报告</option><option>投诉</option></select></div>
+        <div class="field"><label for="feedback-text">你遇到了什么？</label><textarea id="feedback-text" rows="3" maxlength="1500" required placeholder="写下遇到的问题、发生在哪个页面，或你希望改进什么。"></textarea></div>
+      </div>
+      <div class="actions"><button class="button primary" type="submit">打开邮件</button><button id="feedback-copy" class="button" type="button">复制反馈</button></div>
+      <p>接收邮箱 <a href="mailto:411515586@qq.com">411515586@qq.com</a></p>
+      <div id="feedback-status" class="status" role="status"></div>
+    </form>
+  </section>
+  <footer>训练与体测记录保存在当前浏览器。换设备或清理浏览器数据前，可先导出 CSV 留存。</footer>
+</main>
+<script>
+'use strict';
+const storageKey = 'police-fitness-log.v1';
+const byId = (id) => document.getElementById(id);
+const metrics = {
+  shuttle: { label: '折返', unit: '秒', lower: true },
+  jump: { label: '摸高', unit: '厘米', lower: false },
+  run1000: { label: '1000 米', unit: '秒', lower: true, clock: true },
+  run800: { label: '800 米', unit: '秒', lower: true, clock: true },
+};
+let records = [];
+let selected = 'shuttle';
+let editing = null;
+let readFailed = false;
+let loadNotice = '';
+try {
+  const raw = localStorage.getItem(storageKey);
+  if (raw) {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) throw new Error('Invalid history');
+    records = parsed.filter((record) => record && typeof record.id === 'string' &&
+      /^\d{4}-\d{2}-\d{2}$/.test(record.date) && Number.isFinite(record.created) &&
+      record.scores && Object.keys(metrics).some((key) => validScore(record.scores[key])));
+  }
+} catch {
+  readFailed = true;
+  loadNotice = '无法读取浏览器记录。请检查浏览器存储设置。';
+}
+
+function validScore(value) {
+  return Number.isFinite(value) && value > 0;
+}
+
+function today() {
+  const now = new Date();
+  const two = (number) => String(number).padStart(2, '0');
+  return `${now.getFullYear()}-${two(now.getMonth() + 1)}-${two(now.getDate())}`;
+}
+
+function parseScore(raw, label, clock = false) {
+  const value = raw.trim().replace('：', ':');
+  if (!value) return null;
+  const time = clock && value.match(/^(\d+):([0-5]\d)$/);
+  const number = time ? Number(time[1]) * 60 + Number(time[2]) :
+    /^\d+(?:\.\d{1,2})?$/.test(value) ? Number(value) : NaN;
+  if (!validScore(number) || (clock && !Number.isInteger(number))) {
+    throw new Error(clock ? '长跑用时请填分:秒（如 4:25）或整数秒（如 265）。' : `${label}请填写大于零的数字，最多两位小数。`);
+  }
+  return number;
+}
+
+function formatScore(key, value) {
+  if (metrics[key].clock) {
+    return `${Math.floor(value / 60)}:${String(value % 60).padStart(2, '0')}`;
+  }
+  return `${value} ${metrics[key].unit}`;
+}
+
+function showStatus(message, error = false) {
+  byId('status').textContent = message;
+  byId('status').classList.toggle('error', error);
+}
+
+function commit(next) {
+  try {
+    if (readFailed) throw new Error('Unreadable history');
+    localStorage.setItem(storageKey, JSON.stringify(next));
+    records = next;
+    return true;
+  } catch {
+    showStatus('保存失败，请检查浏览器是否允许保存本地数据。', true);
+    return false;
+  }
+}
+
+function sortedRecords() {
+  return [...records].sort((a, b) => a.date.localeCompare(b.date) || a.created - b.created);
+}
+
+function metricPoints() {
+  return sortedRecords().filter((record) => validScore(record.scores[selected]))
+    .map((record) => ({ date: record.date, value: record.scores[selected] }));
+}
+
+function draw(points = metricPoints()) {
+  const canvas = byId('trend');
+  byId('plot-hint').hidden = points.length > 1;
+  canvas.setAttribute('aria-label', `${metrics[selected].label}成绩趋势，共 ${points.length} 次记录`);
+  const w = canvas.clientWidth;
+  const h = canvas.clientHeight;
+  const scale = window.devicePixelRatio || 1;
+  canvas.width = w * scale;
+  canvas.height = h * scale;
+  if (!w || points.length < 2) return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+  ctx.scale(scale, scale);
+  ctx.font = '11px system-ui, sans-serif';
+  const values = points.map((point) => point.value);
+  const lo = Math.min(...values);
+  const hi = Math.max(...values);
+  const spread = hi - lo || 1;
+  const top = 12;
+  const bottom = h - 24;
+  const start = 43;
+  const end = w - 10;
+  const x = (i) => start + (end - start) * i / (points.length - 1);
+  const y = (value) => top + (bottom - top) * (0.12 + 0.76 * (hi === lo ? .5 : (hi - value) / spread));
+  ctx.fillStyle = '#565c68';
+  ctx.strokeStyle = '#e6e2da';
+  ctx.lineWidth = 1;
+  const levels = hi === lo ? [lo] : [hi, lo];
+  for (const level of levels) {
+    ctx.beginPath(); ctx.moveTo(start, y(level)); ctx.lineTo(end, y(level)); ctx.stroke();
+    const label = metrics[selected].clock ? formatScore(selected, level) : String(level);
+    ctx.fillText(label, 1, y(level) + 4, start - 4);
+  }
+  ctx.strokeStyle = '#bc3d19';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  points.forEach((point, i) => i === 0 ? ctx.moveTo(x(i), y(point.value)) : ctx.lineTo(x(i), y(point.value)));
+  ctx.stroke();
+  ctx.fillStyle = '#bc3d19';
+  points.forEach((point, i) => {
+    ctx.beginPath(); ctx.arc(x(i), y(point.value), 3, 0, Math.PI * 2); ctx.fill();
+  });
+  ctx.fillStyle = '#565c68';
+  ctx.fillText(points[0].date.slice(5), start, h - 4);
+  ctx.textAlign = 'right';
+  ctx.fillText(points.at(-1).date.slice(5), end, h - 4);
+}
+
+function renderProgress() {
+  const points = metricPoints();
+  const first = points[0]?.value;
+  const latest = points.at(-1)?.value;
+  byId('first').textContent = first === undefined ? '—' : formatScore(selected, first);
+  byId('latest').textContent = latest === undefined ? '—' : formatScore(selected, latest);
+  const change = byId('change');
+  change.className = '';
+  change.textContent = '—';
+  if (points.length > 1) {
+    const difference = metrics[selected].lower ? first - latest : latest - first;
+    const amount = Math.abs(Number(difference.toFixed(2)));
+    change.className = difference > 0 ? 'positive' : difference < 0 ? 'negative' : '';
+    change.textContent = amount === 0 ? '持平' :
+      `${difference > 0 ? '进步' : '退步'} ${amount} ${metrics[selected].unit}`;
+  }
+  draw(points);
+}
+
+function chooseMetric(key) {
+  selected = key;
+  document.querySelectorAll('[data-metric]').forEach((button) => {
+    button.setAttribute('aria-pressed', String(button.dataset.metric === key));
+  });
+  renderProgress();
+}
+
+function resetForm() {
+  editing = null;
+  byId('score-form').reset();
+  byId('date').value = today();
+  byId('form-title').textContent = '记录成绩';
+  byId('save').textContent = '保存成绩';
+  byId('cancel').hidden = true;
+}
+
+function editRecord(record) {
+  editing = record.id;
+  byId('date').value = record.date;
+  byId('shuttle').value = record.scores.shuttle ?? '';
+  byId('jump').value = record.scores.jump ?? '';
+  const runKey = validScore(record.scores.run800) ? 'run800' : 'run1000';
+  byId('distance').value = runKey;
+  byId('run').value = validScore(record.scores[runKey]) ? formatScore(runKey, record.scores[runKey]) : '';
+  byId('form-title').textContent = '修改成绩';
+  byId('save').textContent = '保存修改';
+  byId('cancel').hidden = false;
+  showStatus('');
+  byId('form-title').scrollIntoView({ block: 'nearest' });
+  byId('date').focus({ preventScroll: true });
+}
+
+function actionButton(label, onClick) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = label;
+  button.addEventListener('click', onClick);
+  return button;
+}
+
+function renderHistory() {
+  const list = byId('records');
+  list.replaceChildren();
+  byId('empty').hidden = records.length > 0;
+  byId('export').disabled = records.length === 0;
+  sortedRecords().reverse().forEach((record) => {
+    const row = document.createElement('li');
+    const date = document.createElement('time');
+    date.dateTime = record.date;
+    date.textContent = record.date;
+    const scores = document.createElement('div');
+    scores.className = 'scores';
+    for (const key of Object.keys(metrics)) {
+      if (!validScore(record.scores[key])) continue;
+      const item = document.createElement('span');
+      item.className = 'score';
+      item.textContent = `${metrics[key].label} ${formatScore(key, record.scores[key])}`;
+      scores.append(item);
+    }
+    const actions = document.createElement('div');
+    actions.className = 'record-actions';
+    actions.append(actionButton('修改', () => editRecord(record)), actionButton('删除', () => {
+      if (window.confirm(`删除 ${record.date} 这条成绩？`) && commit(records.filter((item) => item.id !== record.id))) {
+        if (editing === record.id) resetForm();
+        renderHistory();
+        renderProgress();
+        showStatus('已删除成绩。');
+      }
+    }));
+    row.append(date, scores, actions);
+    list.append(row);
+  });
+}
+
+byId('score-form').addEventListener('submit', (event) => {
+  event.preventDefault();
+  try {
+    const entries = {
+      shuttle: parseScore(byId('shuttle').value, '折返成绩'),
+      jump: parseScore(byId('jump').value, '摸高成绩'),
+      [byId('distance').value]: parseScore(byId('run').value, '长跑成绩', true),
+    };
+    const scores = Object.fromEntries(Object.entries(entries).filter(([, value]) => value !== null));
+    if (Object.keys(scores).length === 0) throw new Error('至少填写一项成绩。');
+    const previous = records.find((item) => item.id === editing);
+    const created = previous?.created ?? Date.now();
+    const id = previous?.id ?? globalThis.crypto?.randomUUID?.() ?? `${created}-${Math.random()}`;
+    const entry = { id, date: byId('date').value, created, scores };
+    const distance = byId('distance').value;
+    const next = previous ? records.map((item) => item.id === previous.id ? entry : item) : [...records, entry];
+    if (!commit(next)) return;
+    resetForm();
+    byId('distance').value = distance;
+    chooseMetric(Object.hasOwn(scores, selected) ? selected : Object.keys(scores)[0]);
+    renderHistory();
+    showStatus(previous ? '修改已保存。' : '成绩已保存。');
+  } catch (error) {
+    showStatus(error.message, true);
+  }
+});
+
+byId('cancel').addEventListener('click', () => { resetForm(); showStatus(''); });
+byId('export').addEventListener('click', () => {
+  const lines = ['日期,10米×4折返（秒）,纵跳摸高（厘米）,1000米（秒）,800米（秒）'];
+  sortedRecords().forEach((record) => {
+    lines.push([record.date, ...Object.keys(metrics).map((key) => validScore(record.scores[key]) ? record.scores[key] : '')].join(','));
+  });
+  const url = URL.createObjectURL(new Blob(['\uFEFF', lines.join('\r\n')], { type: 'text/csv;charset=utf-8' }));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = '我的公安体测训练成绩.csv';
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+document.querySelectorAll('[data-metric]').forEach((button) => button.addEventListener('click', () => chooseMetric(button.dataset.metric)));
+new ResizeObserver(() => draw()).observe(byId('trend'));
+resetForm();
+renderHistory();
+renderProgress();
+if (loadNotice) showStatus(loadNotice, true);
+</script>
+<script src="training.js"></script>
+<script src="wellness.js"></script>
+</body>
+</html>
