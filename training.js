@@ -18,7 +18,7 @@
     unreadable = true;
     $('wod-status').textContent = '无法读取本地训练记录，请检查浏览器存储。';
   }
-  const presets = ['公安专项入门：2轮，每轮摸高2次、折返1趟、跑200米', '公安专项标准：3轮，每轮摸高2次、折返1趟，分段跑300／300／400米', '100个波比跳（熟练者摸底）', '自定义'];
+  const presets = ['公安专项入门：2轮，每轮摸高2次、折返1趟、跑200米', '公安专项标准：3轮，每轮摸高2次、折返1趟，分段跑300／300／400米', '100个波比跳（熟练者摸底）', '自定义', '公安专项熟练版：3轮，每轮摸高2次、折返1趟、跑400米'];
   for (const name of presets) {
     const option = document.createElement('option');
     option.value = name;
@@ -29,10 +29,11 @@
     [presets[0]]: '公安专项入门\n每 6 分钟开始一轮 · 2 轮\n\n原地摸高 2 次\n10 米×4 折返 1 趟\n走 20–30 秒\n跑 200 米\n\n余下时间走动恢复\n记录：每轮完成用时',
     [presets[1]]: '公安专项标准\n每 6 分钟开始一轮 · 3 轮\n\n原地摸高 2 次\n10 米×4 折返 1 趟\n走 20–30 秒\n分轮跑 300、300、400 米\n\n余下时间走动恢复\n记录：每轮完成用时',
     [presets[2]]: '波比跳摸底\n计时完成\n\n100 个波比跳\n\n按自己熟悉的动作标准完成，保持动作稳定。\n记录：完成用时',
+    [presets[4]]: '公安专项熟练版\n每 6 分钟开始一轮 · 3 轮\n\n原地摸高 2 次\n10 米×4 折返 1 趟\n走 20–30 秒\n跑 400 米\n\n余下时间走动恢复\n记录：每轮完成用时',
   };
   function renderSelectedPlan() {
     const selected = $('wod-plan').value;
-    $('custom-field').hidden = selected !== '自定义';
+    $('custom-field').hidden = selected !== '自定义' || $('plan-kind').value !== 'custom';
     $('current-plan-content').textContent = selected === '自定义'
       ? selectedDetail || $('custom-plan').value.trim() || '填写训练名称和总量，或在下方选择生成的计划。'
       : descriptions[selected] || '请选择训练版本。';
@@ -68,7 +69,8 @@
     $('wod-cancel').hidden = true;
     selectedDetail = '';
     $('wod-form-title').textContent = '本次训练计划';
-    renderSelectedPlan();
+    $('plan-kind').value = 'daily';
+    loadSelectedWorkout();
   }
   function option(select, value, label) {
     const o = document.createElement('option'); o.value=value; o.textContent=label; select.append(o);
@@ -121,6 +123,9 @@
         edit=r.id; $('wod-date').value=r.date; $('person').value=r.person||'';
         $('wod-plan').value=presets.includes(r.plan)?r.plan:'自定义'; $('custom-field').hidden=$('wod-plan').value!=='自定义';
         $('custom-plan').value=presets.includes(r.plan)?'':r.plan; $('wod-time').value=format(r.seconds); $('wod-breath').value=r.breath||''; $('wod-rounds').value=r.rounds??''; $('wod-extra').value=r.extra??'';
+        $('plan-kind').value = r.plan===presets[2] ? 'burpee' : [presets[0],presets[1],presets[4]].includes(r.plan) ? 'police' : 'custom';
+        $('plan-tier').value = r.plan===presets[0] ? '简单版' : r.plan===presets[4] ? '熟练版' : '加强版';
+        syncPlanControls();
         $('wod-pace').value=r.pace||''; $('wod-control').value=r.control||''; $('wod-complete').value=r.complete;
         selectedDetail=r.planDetail||''; renderSelectedPlan();
         $('wod-cancel').hidden=false; $('wod-form-title').textContent='修改训练记录'; $('wod-date').focus();
@@ -184,7 +189,7 @@
     $('plan-status').textContent='';$('plan-result').hidden=false;planName=`${day.name} · ${day.level} · ${scene==='home'?'居家':'户外'}`;
     renderDay();
   };
-  $('use-plan').onclick=()=>{$('wod-plan').value='自定义';$('custom-plan').value=planName;selectedDetail=$('plan-steps').textContent;renderSelectedPlan();$('workout').scrollIntoView();};
+  $('use-plan').onclick=()=>{$('plan-kind').value='daily';$('plan-tier').value=$('daily-tier').value;$('plan-scene').value=$('daily-scene').value;$('wod-date').value=$('daily-date').value;$('wod-plan').value='自定义';$('custom-plan').value=planName;selectedDetail=$('plan-steps').textContent;syncPlanControls();renderSelectedPlan();$('workout').scrollIntoView();};
   const start = Date.UTC(2026,10,11);
   const end = Date.UTC(2027,0,30);
   function dayInfo(ms) {
@@ -202,7 +207,46 @@
   $('daily-date').onchange=renderDay;
   $('daily-tier').onchange=renderDay;
   $('daily-scene').onchange=renderDay;
-  $('daily-use').onclick=()=>{const ms=Date.parse(`${$('daily-date').value}T00:00:00Z`);if(!Number.isFinite(ms)||ms<start||ms>end)return;const d=dayInfo(ms);$('wod-plan').value='自定义';$('custom-plan').value=`${d.name} · ${d.level} · ${$('daily-scene').value==='home'?'居家':'户外'}`;selectedDetail=d.body;renderSelectedPlan();$('wod-date').value=d.date;$('workout').scrollIntoView();};
+  function syncPlanControls() {
+    const kind=$('plan-kind').value;
+    $('plan-tier-field').hidden=kind==='burpee'||kind==='custom';
+    $('plan-scene-field').hidden=kind!=='daily';
+  }
+  function loadSelectedWorkout() {
+    syncPlanControls();
+    const kind=$('plan-kind').value;
+    selectedDetail='';
+    if(kind==='daily') {
+      const ms=Date.parse(`${$('wod-date').value}T00:00:00Z`);
+      $('wod-plan').value='自定义';
+      if(!Number.isFinite(ms)||ms<start||ms>end) {
+        $('custom-plan').value='';
+        selectedDetail='请把训练日期设在 2026 年 11 月 11 日至 2027 年 1 月 30 日，或选择自定义训练。';
+      } else {
+        $('daily-date').value=$('wod-date').value;
+        $('daily-tier').value=$('plan-tier').value;
+        $('daily-scene').value=$('plan-scene').value;
+        const d=dayInfo(ms);
+        $('custom-plan').value=`${d.name} · ${d.level} · ${$('plan-scene').value==='home'?'居家':'户外'}`;
+        selectedDetail=d.body;
+        renderDay();
+      }
+    } else if(kind==='police') {
+      const tier=$('plan-tier').value;
+      $('wod-plan').value=tier==='简单版'?presets[0]:tier==='熟练版'?presets[4]:presets[1];
+    } else if(kind==='burpee') {
+      $('wod-plan').value=presets[2];
+    } else {
+      $('wod-plan').value='自定义';
+      $('custom-plan').value='';
+    }
+    renderSelectedPlan();
+  }
+  $('plan-kind').onchange=loadSelectedWorkout;
+  $('plan-tier').onchange=loadSelectedWorkout;
+  $('plan-scene').onchange=loadSelectedWorkout;
+  $('wod-date').onchange=()=>{if(!edit&&$('plan-kind').value==='daily')loadSelectedWorkout();};
+  $('daily-use').onclick=()=>{const ms=Date.parse(`${$('daily-date').value}T00:00:00Z`);if(!Number.isFinite(ms)||ms<start||ms>end)return;const d=dayInfo(ms);$('plan-kind').value='daily';$('plan-tier').value=$('daily-tier').value;$('plan-scene').value=$('daily-scene').value;$('wod-date').value=d.date;loadSelectedWorkout();$('workout').scrollIntoView();};
   renderDay();
   $('feedback-form').onsubmit=(event)=>{event.preventDefault();const subject=encodeURIComponent(`体能训练网页·${$('feedback-kind').value}`),body=encodeURIComponent($('feedback-text').value);location.href=`mailto:411515586@qq.com?subject=${subject}&body=${body}`;$('feedback-status').textContent='请在邮件应用中确认并发送。';};
   $('feedback-copy').onclick=async()=>{try{await navigator.clipboard.writeText(`【${$('feedback-kind').value}】\n${$('feedback-text').value}`);$('feedback-status').textContent='已复制，可粘贴到邮件发送。';}catch{$('feedback-status').textContent='请选中文字复制，发送到下方邮箱。';}};

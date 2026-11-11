@@ -16,7 +16,7 @@ main{padding:25px 0 40px}.grid{display:grid;grid-template-columns:minmax(0,1.4fr
 .history{margin-top:18px}.section-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.records{padding:0;margin:12px 0 0;list-style:none}.records li{display:grid;grid-template-columns:minmax(100px,1fr) minmax(0,3fr) auto;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}.records time{font-variant-numeric:tabular-nums;font-weight:700}.scores{display:flex;gap:8px;flex-wrap:wrap}.score{font-size:12px;background:#f4f1ea;border-radius:5px;padding:3px 7px}.record-actions{display:flex;gap:4px}.record-actions button{background:transparent;color:var(--ink);border:0;min-height:36px;padding:4px 7px;font-size:12px;text-decoration:underline}.record-actions button:last-child{color:var(--accent)}.empty{padding:10px 0 2px}footer{font-size:12px;color:var(--muted);margin-top:16px}
 @media(max-width:680px){.shell{width:calc(100% - 28px)}.top{height:53px}.hero .shell{padding:29px 0 34px}.lanes{width:390px;right:-215px;bottom:-225px}.grid{grid-template-columns:1fr;gap:12px}.panel{padding:15px}.form-panel{grid-row:1}.hero p{font-size:14px}main{padding-top:13px}.history{margin-top:12px}.records li{grid-template-columns:minmax(0,1fr) auto;gap:5px}.scores{grid-row:2;grid-column:1/-1}.record-actions{grid-column:2;grid-row:1}.plot{height:150px}}
 </style>
-<link rel="stylesheet" href="training.css">
+<link rel="stylesheet" href="training.css?v=20261111-3">
 </head>
 <body>
 <header class="top"><div class="shell"><div class="brand"><i aria-hidden="true"></i>基地班体能</div><nav class="quick-links" aria-label="页面导航"><a href="#workout">记录</a><a href="#planner">计划</a><a href="#feedback">反馈</a></nav></div></header>
@@ -40,7 +40,12 @@ main{padding:25px 0 40px}.grid{display:grid;grid-template-columns:minmax(0,1.4fr
       <h2 id="wod-form-title">本次训练计划</h2>
       <form id="wod-form">
         <div class="fields">
-          <div class="field"><label for="wod-plan">训练版本</label><select id="wod-plan"></select></div>
+          <div class="row">
+            <div class="field"><label for="plan-kind">训练内容</label><select id="plan-kind"><option value="daily">每日训练</option><option value="police">公安专项</option><option value="burpee">波比跳摸底</option><option value="custom">自定义</option></select></div>
+            <div class="field" id="plan-tier-field"><label for="plan-tier">训练版本</label><select id="plan-tier"><option>简单版</option><option selected>加强版</option><option>熟练版</option></select></div>
+          </div>
+          <div class="field" hidden><label for="wod-plan">内部训练选择</label><select id="wod-plan"></select></div>
+          <div class="field" id="plan-scene-field"><label for="plan-scene">训练场地</label><select id="plan-scene"><option value="home">居家</option><option value="outdoor">户外</option></select></div>
           <div class="field" id="custom-field" hidden><label for="custom-plan">训练名称和总量</label><input id="custom-plan" maxlength="64" placeholder="如 台阶踏步 3 轮，每轮 2 分钟"></div>
           <div class="current-plan" aria-live="polite"><strong>本次训练内容</strong><p id="current-plan-content"></p></div>
           <div class="timer-box">
@@ -51,6 +56,7 @@ main{padding:25px 0 40px}.grid{display:grid;grid-template-columns:minmax(0,1.4fr
             <div class="field"><label for="wod-date">训练日期</label><input id="wod-date" type="date" required></div>
             <div class="field"><label for="person">学员代号 <span class="unit">选填</span></label><input id="person" maxlength="24" list="people" placeholder="自记留空，带课可填代号"><datalist id="people"></datalist></div>
           </div>
+          <p class="form-note">记录保存在当前手机或电脑的浏览器。代号方便同一设备区分记录。</p>
           <div class="row">
             <div class="field"><label for="wod-time">WOD 用时</label><input id="wod-time" placeholder="如 14:35" required></div>
             <div class="field"><label for="wod-breath">恢复到能说整句 <span class="unit">秒</span></label><input id="wod-breath" inputmode="numeric" placeholder="选填"></div>
@@ -462,8 +468,8 @@ renderHistory();
 renderProgress();
 if (loadNotice) showStatus(loadNotice, true);
 </script>
-<script src="workouts.js"></script>
-<script src="training.js"></script>
-<script src="wellness.js"></script>
+<script src="workouts.js?v=20261111-3"></script>
+<script src="training.js?v=20261111-3"></script>
+<script src="wellness.js?v=20261111-3"></script>
 </body>
 </html>
