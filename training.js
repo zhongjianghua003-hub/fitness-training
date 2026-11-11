@@ -8,6 +8,7 @@
   let clockMode = 'idle';
   let clockInterval = null;
   let planName = '';
+  let selectedDetail = '';
   let unreadable = false;
   try {
     const data = JSON.parse(localStorage.getItem(key) || '[]');
@@ -23,6 +24,18 @@
     option.value = name;
     option.textContent = name;
     $('wod-plan').append(option);
+  }
+  const descriptions = {
+    [presets[0]]: '共 2 轮，每 6 分钟开始一轮。每轮原地摸高 2 次，10 米×4 折返 1 趟，走 20–30 秒后跑 200 米。余下时间走动恢复。',
+    [presets[1]]: '共 3 轮，每 6 分钟开始一轮。每轮原地摸高 2 次，10 米×4 折返 1 趟，走 20–30 秒后分轮跑 300、300、400 米。余下时间走动恢复。',
+    [presets[2]]: '完成 100 个波比跳并记录用时。按自己熟悉的动作标准完成，保持动作稳定。',
+  };
+  function renderSelectedPlan() {
+    const selected = $('wod-plan').value;
+    $('custom-field').hidden = selected !== '自定义';
+    $('current-plan-content').textContent = selected === '自定义'
+      ? selectedDetail || $('custom-plan').value.trim() || '填写训练名称和总量，或在下方选择生成的计划。'
+      : descriptions[selected] || '请选择训练版本。';
   }
   const today = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0,10); };
   const format = (seconds) => `${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`;
@@ -49,7 +62,9 @@
     $('wod-date').value = today();
     $('custom-field').hidden = true;
     $('wod-cancel').hidden = true;
-    $('wod-form-title').textContent = '记录本次 WOD';
+    selectedDetail = '';
+    $('wod-form-title').textContent = '本次训练计划';
+    renderSelectedPlan();
   }
   function option(select, value, label) {
     const o = document.createElement('option'); o.value=value; o.textContent=label; select.append(o);
@@ -103,14 +118,16 @@
         $('wod-plan').value=presets.includes(r.plan)?r.plan:'自定义'; $('custom-field').hidden=$('wod-plan').value!=='自定义';
         $('custom-plan').value=presets.includes(r.plan)?'':r.plan; $('wod-time').value=format(r.seconds); $('wod-breath').value=r.breath||'';
         $('wod-pace').value=r.pace||''; $('wod-control').value=r.control||''; $('wod-complete').value=r.complete;
-        $('wod-cancel').hidden=false; $('wod-form-title').textContent='修改 WOD'; $('wod-date').focus();
+        selectedDetail=r.planDetail||''; renderSelectedPlan();
+        $('wod-cancel').hidden=false; $('wod-form-title').textContent='修改训练记录'; $('wod-date').focus();
       };
       const del=document.createElement('button');del.type='button';del.textContent='删除';del.onclick=()=>{if(confirm('删除这条训练记录？')&&save(records.filter(x=>x.id!==r.id))){if(edit===r.id)reset();render();}};
       actions.append(change,del);li.append(title,values,actions);list.append(li);
     });
   }
   $('compare-person').onchange=render; $('compare-plan').onchange=render;
-  $('wod-plan').onchange=()=>{$('custom-field').hidden=$('wod-plan').value!=='自定义';};
+  $('wod-plan').onchange=()=>{selectedDetail='';renderSelectedPlan();};
+  $('custom-plan').addEventListener('input',()=>{selectedDetail='';renderSelectedPlan();});
   $('wod-cancel').onclick=reset;
   $('wod-form').onsubmit=(event)=>{
     event.preventDefault();
@@ -119,7 +136,7 @@
     const plan=$('wod-plan').value==='自定义'?$('custom-plan').value.trim():$('wod-plan').value;
     if(!seconds||!plan||(raw&&(!breath||breath<1))){$('wod-status').textContent='请填写训练名称、用时，以及有效的恢复秒数。';return;}
     const old=records.find(r=>r.id===edit), created=old?.created||Date.now();
-    const record={id:old?.id||`${created}-${Math.random()}`,created,date:$('wod-date').value,person:$('person').value.trim(),plan,seconds,breath,pace:$('wod-pace').value,control:$('wod-control').value,complete:$('wod-complete').value};
+    const record={id:old?.id||`${created}-${Math.random()}`,created,date:$('wod-date').value,person:$('person').value.trim(),plan,planDetail:selectedDetail,seconds,breath,pace:$('wod-pace').value,control:$('wod-control').value,complete:$('wod-complete').value};
     if(save(old?records.map(r=>r.id===edit?record:r):[...records,record])){reset();render();$('compare-person').value=record.person;render();$('compare-plan').value=record.plan;render();$('wod-status').textContent='训练记录已保存。';}
   };
   function tick(){const seconds=Math.floor((Date.now()-clockStart)/1000);$('timer-display').textContent=format(seconds);}
@@ -159,7 +176,7 @@
     $('plan-steps').replaceChildren(); steps.forEach(text=>{const li=document.createElement('li');li.textContent=text;$('plan-steps').append(li);});
     $('plan-status').textContent='';$('plan-result').hidden=false;planName=title;
   };
-  $('use-plan').onclick=()=>{$('wod-plan').value='自定义';$('custom-field').hidden=false;$('custom-plan').value=planName;$('workout').scrollIntoView();};
+  $('use-plan').onclick=()=>{$('wod-plan').value='自定义';$('custom-plan').value=planName;selectedDetail=[...$('plan-steps').children].map(item=>item.textContent).join('\n');renderSelectedPlan();$('workout').scrollIntoView();};
   const start = Date.UTC(2026,10,11);
   const end = Date.UTC(2027,0,30);
   const activities = [
@@ -188,7 +205,7 @@
   $('daily-date').onchange=renderDay;
   for(let ms=start;ms<=end;ms+=86400000){const d=dayInfo(ms),p=document.createElement('p');p.textContent=`${d.date}  ${d.name}。 ${d.body}`; $('daily-list').append(p);}
   $('plan-form').addEventListener('submit',()=>{const text=$('plan-name').textContent;dailyRounds=text.includes('调整版')?2:text.includes('进阶版')?4:3;renderDay();});
-  $('daily-use').onclick=()=>{const ms=Date.parse(`${$('daily-date').value}T00:00:00Z`);if(!Number.isFinite(ms)||ms<start||ms>end)return;const d=dayInfo(ms);$('wod-plan').value='自定义';$('custom-field').hidden=false;$('custom-plan').value=`${d.name} · ${d.scale}`; $('wod-date').value=d.date;$('workout').scrollIntoView();};
+  $('daily-use').onclick=()=>{const ms=Date.parse(`${$('daily-date').value}T00:00:00Z`);if(!Number.isFinite(ms)||ms<start||ms>end)return;const d=dayInfo(ms);$('wod-plan').value='自定义';$('custom-plan').value=`${d.name} · ${d.scale}`;selectedDetail=`${d.name}\n${d.body}\n${d.scale}`;renderSelectedPlan();$('wod-date').value=d.date;$('workout').scrollIntoView();};
   renderDay();
   $('feedback-form').onsubmit=(event)=>{event.preventDefault();const subject=encodeURIComponent(`体能训练网页·${$('feedback-kind').value}`),body=encodeURIComponent($('feedback-text').value);location.href=`mailto:411515586@qq.com?subject=${subject}&body=${body}`;$('feedback-status').textContent='请在邮件应用中确认并发送。';};
   $('feedback-copy').onclick=async()=>{try{await navigator.clipboard.writeText(`【${$('feedback-kind').value}】\n${$('feedback-text').value}`);$('feedback-status').textContent='已复制，可粘贴到邮件发送。';}catch{$('feedback-status').textContent='请选中文字复制，发送到下方邮箱。';}};

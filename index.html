@@ -25,21 +25,6 @@ main{padding:25px 0 40px}.grid{display:grid;grid-template-columns:minmax(0,1.4fr
   <div class="shell"><h1>体能训练记录</h1><p>居家和户外都能练。记下每次 WOD 的用时、呼吸恢复和动作状态，比较自己的变化。</p></div>
 </section>
 <main class="shell">
-  <section class="panel history" id="wellness">
-    <div class="section-head"><h2>今日状态</h2><span class="unit">每天约 30 秒</span></div>
-    <p>选今天的主观感受。建议每天在相近时间填写，观察自己的变化。</p>
-    <form id="wellness-form"><div class="plan-fields fields">
-      <div class="field"><label for="well-date">日期</label><input id="well-date" type="date" required></div>
-      <div class="field"><label for="well-person">学员代号（选填）</label><input id="well-person" maxlength="24" placeholder="自记留空"></div>
-      <div class="field"><label for="well-sleep">昨晚睡眠</label><select id="well-sleep" required><option value="">请选择</option><option value="1">较差</option><option value="2">一般</option><option value="3">良好</option></select></div>
-      <div class="field"><label for="well-energy">今日精力</label><select id="well-energy" required><option value="">请选择</option><option value="1">低</option><option value="2">一般</option><option value="3">充足</option></select></div>
-      <div class="field"><label for="well-soreness">肌肉酸痛</label><select id="well-soreness" required><option value="">请选择</option><option value="1">明显</option><option value="2">轻微</option><option value="3">没有</option></select></div>
-    </div><div class="actions"><button class="button primary" type="submit">保存今日状态</button></div><p id="well-status" role="status"></p></form>
-    <div class="wod-stats" id="well-summary" aria-live="polite"></div>
-    <p id="well-note">填写两天后可比较状态。每天保存一次，同一天再次保存会更新。</p>
-    <details class="baseline"><summary>查看状态记录</summary><div id="well-history"></div></details>
-    <p>状态是自己的感受记录。结合相同 WOD 的用时、后程节奏和动作稳定性看训练变化。</p>
-  </section>
   <div class="grid" id="workout">
     <section class="panel wod-progress" aria-labelledby="wod-progress-title">
       <div class="section-head"><h2 id="wod-progress-title">同一训练的进步</h2></div>
@@ -52,19 +37,20 @@ main{padding:25px 0 40px}.grid{display:grid;grid-template-columns:minmax(0,1.4fr
       <p id="wod-compare-hint">保存一次 WOD，建立自己的起点。</p>
     </section>
     <section class="panel form-panel" aria-labelledby="wod-form-title">
-      <h2 id="wod-form-title">记录本次 WOD</h2>
-      <div class="timer-box">
-        <div><div class="timer-caption" id="timer-caption">现场秒表</div><output id="timer-display">00:00</output></div>
-        <div class="timer-buttons"><button type="button" class="button primary" id="timer-action">开始 WOD</button><button type="button" class="button" id="timer-reset" hidden>重置</button></div>
-      </div>
+      <h2 id="wod-form-title">本次训练计划</h2>
       <form id="wod-form">
         <div class="fields">
+          <div class="field"><label for="wod-plan">训练版本</label><select id="wod-plan"></select></div>
+          <div class="field" id="custom-field" hidden><label for="custom-plan">训练名称和总量</label><input id="custom-plan" maxlength="64" placeholder="如 台阶踏步 3 轮，每轮 2 分钟"></div>
+          <div class="current-plan" aria-live="polite"><strong>本次训练内容</strong><p id="current-plan-content"></p></div>
+          <div class="timer-box">
+            <div><div class="timer-caption" id="timer-caption">现场秒表</div><output id="timer-display">00:00</output></div>
+            <div class="timer-buttons"><button type="button" class="button primary" id="timer-action">开始 WOD</button><button type="button" class="button" id="timer-reset" hidden>重置</button></div>
+          </div>
           <div class="row">
             <div class="field"><label for="wod-date">训练日期</label><input id="wod-date" type="date" required></div>
             <div class="field"><label for="person">学员代号 <span class="unit">选填</span></label><input id="person" maxlength="24" list="people" placeholder="自记留空，带课可填代号"><datalist id="people"></datalist></div>
           </div>
-          <div class="field"><label for="wod-plan">训练版本</label><select id="wod-plan"></select></div>
-          <div class="field" id="custom-field" hidden><label for="custom-plan">训练名称和总量</label><input id="custom-plan" maxlength="64" placeholder="如 台阶踏步 3 轮，每轮 2 分钟"></div>
           <div class="row">
             <div class="field"><label for="wod-time">WOD 用时</label><input id="wod-time" placeholder="如 14:35" required></div>
             <div class="field"><label for="wod-breath">恢复到能说整句 <span class="unit">秒</span></label><input id="wod-breath" inputmode="numeric" placeholder="选填"></div>
@@ -81,6 +67,21 @@ main{padding:25px 0 40px}.grid{display:grid;grid-template-columns:minmax(0,1.4fr
       </form>
     </section>
   </div>
+  <section class="panel history" id="wellness">
+    <div class="section-head"><h2>今日状态</h2><span class="unit">每天约 30 秒</span></div>
+    <p>选今天的主观感受。建议每天在相近时间填写，观察自己的变化。</p>
+    <form id="wellness-form"><div class="plan-fields fields">
+      <div class="field"><label for="well-date">日期</label><input id="well-date" type="date" required></div>
+      <div class="field"><label for="well-person">学员代号（选填）</label><input id="well-person" maxlength="24" placeholder="自记留空"></div>
+      <div class="field"><label for="well-sleep">昨晚睡眠</label><select id="well-sleep" required><option value="">请选择</option><option value="1">较差</option><option value="2">一般</option><option value="3">良好</option></select></div>
+      <div class="field"><label for="well-energy">今日精力</label><select id="well-energy" required><option value="">请选择</option><option value="1">低</option><option value="2">一般</option><option value="3">充足</option></select></div>
+      <div class="field"><label for="well-soreness">肌肉酸痛</label><select id="well-soreness" required><option value="">请选择</option><option value="1">明显</option><option value="2">轻微</option><option value="3">没有</option></select></div>
+    </div><div class="actions"><button class="button primary" type="submit">保存今日状态</button></div><p id="well-status" role="status"></p></form>
+    <div class="wod-stats" id="well-summary" aria-live="polite"></div>
+    <p id="well-note">填写两天后可比较状态。每天保存一次，同一天再次保存会更新。</p>
+    <details class="baseline"><summary>查看状态记录</summary><div id="well-history"></div></details>
+    <p>状态是自己的感受记录。结合相同 WOD 的用时、后程节奏和动作稳定性看训练变化。</p>
+  </section>
   <section class="panel history" id="wod-history">
     <div class="section-head"><h2>WOD 历史</h2><button id="wod-export" class="button" type="button" disabled>导出 CSV</button></div>
     <p id="wod-empty">还没有 WOD 记录。</p>

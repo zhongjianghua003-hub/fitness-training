@@ -1,4 +1,7 @@
 .quick-links{display:flex;gap:19px}
+.current-plan{background:#faf1e9;border:1px solid #ead9ca;border-radius:10px;padding:12px 14px}
+.current-plan strong{font-size:13px;color:#8e2e13}
+.current-plan p{margin:5px 0 0;font-size:14px;color:var(--ink);white-space:pre-line;line-height:1.55}
 .wod-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 8px}
 .wod-stat{min-height:102px;padding:12px;border:1px solid var(--line);border-radius:10px;background:#fcfaf6}
 .wod-stat span,.wod-stat small{display:block;color:var(--muted);font-size:12px}
