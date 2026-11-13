@@ -8,7 +8,6 @@
   const key = 'fitness-wod.v1';
   let records = [];
   let edit = null;
-  let clockStart = null;
   let clockMode = 'idle';
   let clockInterval = null;
   let planName = '';
@@ -48,6 +47,12 @@
     .replace(' · 基础版 · ', ' · 简单版 · ')
     .replace(' · 标准版 · ', ' · 加强版 · ')
     .replace(' · 进阶版 · ', ' · 熟练版 · ');
+  const tierNames = {基础版:'简单版',标准版:'加强版',进阶版:'熟练版',简单版:'简单版',加强版:'加强版',熟练版:'熟练版'};
+  function parseDailyPlan(name) {
+    const match = /^(.+) · (简单版|加强版|熟练版|基础版|标准版|进阶版) · (居家|户外)$/.exec(name || '');
+    if (!match) return null;
+    return {tier:tierNames[match[2]], scene:match[3]==='居家'?'home':'outdoor'};
+  }
   function parse(raw) {
     const s = raw.trim().replace('：', ':');
     const m = /^(\d+):([0-5]\d)$/.exec(s);
@@ -125,14 +130,23 @@
       actions.className='record-actions';
       const change=document.createElement('button');change.type='button';change.textContent='修改';change.onclick=()=>{
         edit=r.id; $('wod-date').value=r.date; $('person').value=r.person||'';
-        $('wod-plan').value=presets.includes(r.plan)?r.plan:'自定义'; $('custom-field').hidden=$('wod-plan').value!=='自定义';
-        $('custom-plan').value=presets.includes(r.plan)?'':r.plan; $('wod-time').value=format(r.seconds); $('wod-breath').value=r.breath||''; $('wod-rounds').value=r.rounds??''; $('wod-extra').value=r.extra??'';
-        $('plan-kind').value = r.plan===presets[2] ? 'burpee' : [presets[0],presets[1],presets[4]].includes(r.plan) ? 'police' : 'custom';
-        $('plan-tier').value = r.plan===presets[0] ? '简单版' : r.plan===presets[4] ? '熟练版' : '加强版';
-        syncPlanControls();
+        $('wod-time').value=format(r.seconds); $('wod-breath').value=r.breath||''; $('wod-rounds').value=r.rounds??''; $('wod-extra').value=r.extra??'';
         $('wod-pace').value=r.pace||''; $('wod-control').value=r.control||''; $('wod-complete').value=r.complete;
         $('training-details').open=!!(r.breath || Number.isInteger(r.rounds) || r.pace || r.control || r.complete==='reduced');
-        selectedDetail=r.planDetail||''; renderSelectedPlan();
+        const daily=parseDailyPlan(r.plan);
+        if(daily){
+          $('plan-kind').value='daily'; $('plan-tier').value=daily.tier; $('plan-scene').value=daily.scene;
+          loadSelectedWorkout();
+        } else if(r.plan===presets[2]){
+          $('plan-kind').value='burpee'; loadSelectedWorkout();
+        } else if([presets[0],presets[1],presets[4]].includes(r.plan)){
+          $('plan-kind').value='police';
+          $('plan-tier').value=r.plan===presets[0]?'简单版':r.plan===presets[4]?'熟练版':'加强版';
+          loadSelectedWorkout();
+        } else {
+          $('plan-kind').value='custom'; $('wod-plan').value='自定义'; $('custom-plan').value=r.plan;
+          selectedDetail=r.planDetail||''; syncPlanControls(); renderSelectedPlan();
+        }
         $('wod-cancel').hidden=false; $('wod-form-title').textContent='修改训练记录'; $('wod-date').focus();
       };
       const del=document.createElement('button');del.type='button';del.textContent='删除';del.onclick=()=>{if(confirm('删除这条训练记录？')&&save(records.filter(x=>x.id!==r.id))){if(edit===r.id)reset();render();}};
@@ -157,13 +171,90 @@
     const record={id:old?.id||`${created}-${Math.random()}`,created,date:$('wod-date').value,person:$('person').value.trim(),plan,planDetail:selectedDetail,seconds,rounds,extra,breath,pace:$('wod-pace').value,control:$('wod-control').value,complete:$('wod-complete').value};
     if(save(old?records.map(r=>r.id===edit?record:r):[...records,record])){reset();render();$('compare-person').value=record.person;render();$('compare-plan').value=displayPlanName(record.plan);render();$('wod-status').textContent='训练记录已保存。';}
   };
-  function tick(){const seconds=Math.floor((Date.now()-clockStart)/1000);$('timer-display').textContent=format(seconds);}
+  const timerKey='fitness-timer.v1';
+  let elapsedMs=0;
+  let segmentStart=null;
+  let clockPaused=false;
+  function currentSeconds(){
+    const running=segmentStart?Date.now()-segmentStart:0;
+    return Math.max(0, Math.floor((elapsedMs+running)/1000));
+  }
+  function persistTimer(){
+    try{
+      if(clockMode==='idle') sessionStorage.removeItem(timerKey);
+      else sessionStorage.setItem(timerKey, JSON.stringify({mode:clockMode,paused:clockPaused,elapsedMs,segmentStart}));
+    }catch{}
+  }
+  function paintTimer(){
+    const running=clockMode!=='idle';
+    $('timer-reset').hidden=!running;
+    $('timer-pause').hidden=!running;
+    if(!running){
+      $('timer-caption').textContent='现场秒表';
+      $('timer-action').textContent='开始 WOD';
+      $('timer-display').textContent='00:00';
+      return;
+    }
+    $('timer-pause').textContent=clockPaused?'继续':'暂停';
+    $('timer-display').textContent=format(currentSeconds());
+    if(clockMode==='work'){
+      $('timer-caption').textContent=clockPaused?'WOD 已暂停':'WOD 计时中';
+      $('timer-action').textContent='完成 WOD';
+    }else{
+      $('timer-caption').textContent=clockPaused?'恢复已暂停':'恢复计时中';
+      $('timer-action').textContent='能说整句了';
+    }
+  }
+  function startTicking(){
+    clearInterval(clockInterval);
+    clockInterval=null;
+    if(clockMode!=='idle' && !clockPaused) clockInterval=setInterval(paintTimer,250);
+  }
+  function stopClock(filled){
+    clearInterval(clockInterval);
+    clockInterval=null;
+    clockMode='idle';
+    clockPaused=false;
+    elapsedMs=0;
+    segmentStart=null;
+    persistTimer();
+    paintTimer();
+    if(filled) $('timer-caption').textContent='计时已填入';
+  }
   $('timer-action').onclick=()=>{
-    if(clockMode==='idle'){clockMode='work';clockStart=Date.now();$('timer-caption').textContent='WOD 计时中';$('timer-action').textContent='完成 WOD';$('timer-reset').hidden=false;clockInterval=setInterval(tick,250);tick();}
-    else if(clockMode==='work'){$('wod-time').value=format(Math.max(1,Math.floor((Date.now()-clockStart)/1000)));clockMode='recovery';clockStart=Date.now();$('timer-caption').textContent='恢复计时中';$('timer-action').textContent='能说整句了';tick();}
-    else {$('wod-breath').value=String(Math.max(1,Math.floor((Date.now()-clockStart)/1000)));clearInterval(clockInterval);clockMode='idle';$('timer-caption').textContent='计时已填入';$('timer-action').textContent='开始 WOD';}
+    if(clockMode==='idle'){
+      clockMode='work'; clockPaused=false; elapsedMs=0; segmentStart=Date.now();
+    }else if(clockMode==='work'){
+      $('wod-time').value=format(Math.max(1,currentSeconds()));
+      clockMode='recovery'; clockPaused=false; elapsedMs=0; segmentStart=Date.now();
+    }else{
+      $('wod-breath').value=String(Math.max(1,currentSeconds()));
+      stopClock(true);
+      return;
+    }
+    persistTimer(); startTicking(); paintTimer();
   };
-  $('timer-reset').onclick=()=>{clearInterval(clockInterval);clockMode='idle';$('timer-caption').textContent='现场秒表';$('timer-display').textContent='00:00';$('timer-action').textContent='开始 WOD';$('timer-reset').hidden=true;};
+  $('timer-pause').onclick=()=>{
+    if(clockMode==='idle') return;
+    if(clockPaused){clockPaused=false; segmentStart=Date.now();}
+    else{elapsedMs+=segmentStart?Date.now()-segmentStart:0; segmentStart=null; clockPaused=true;}
+    persistTimer(); startTicking(); paintTimer();
+  };
+  $('timer-reset').onclick=()=>stopClock(false);
+  function restoreTimer(){
+    try{
+      const saved=JSON.parse(sessionStorage.getItem(timerKey)||'null');
+      if(!saved||(saved.mode!=='work'&&saved.mode!=='recovery')) return;
+      clockMode=saved.mode;
+      clockPaused=!!saved.paused;
+      elapsedMs=Number.isFinite(saved.elapsedMs)&&saved.elapsedMs>0?saved.elapsedMs:0;
+      segmentStart=!clockPaused&&Number.isFinite(saved.segmentStart)?saved.segmentStart:null;
+      if(!clockPaused&&segmentStart===null) segmentStart=Date.now();
+      startTicking(); paintTimer();
+    }catch{}
+  }
+  window.addEventListener('pagehide', persistTimer);
+  document.addEventListener('visibilitychange', () => { if (clockMode!=='idle') { persistTimer(); paintTimer(); } });
   $('wod-export').onclick=()=>{
     const quote=(value)=>`"${String(value??'').replaceAll('"','""')}"`;
     const csv=[['日期','学员代号','训练版本','用时秒','完成整轮数','额外次数','恢复秒','后程','动作','完成情况'],...records.map(r=>[r.date,r.person,r.plan,r.seconds,r.rounds,r.extra,r.breath,r.pace,r.control,r.complete])].map(row=>row.map(quote).join(',')).join('\r\n');
@@ -260,5 +351,5 @@
   renderDay();
   $('feedback-form').onsubmit=(event)=>{event.preventDefault();const subject=encodeURIComponent(`体能训练网页·${$('feedback-kind').value}`),body=encodeURIComponent($('feedback-text').value);location.href=`mailto:411515586@qq.com?subject=${subject}&body=${body}`;$('feedback-status').textContent='请在邮件应用中确认并发送。';};
   $('feedback-copy').onclick=async()=>{try{await navigator.clipboard.writeText(`【${$('feedback-kind').value}】\n${$('feedback-text').value}`);$('feedback-status').textContent='已复制，可粘贴到邮件发送。';}catch{$('feedback-status').textContent='请选中文字复制，发送到下方邮箱。';}};
-  reset();render();
+  reset();render();restoreTimer();
 })();

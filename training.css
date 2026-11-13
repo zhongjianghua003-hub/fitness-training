@@ -11,7 +11,7 @@
 .timer-box{display:flex;align-items:center;justify-content:space-between;gap:8px;border-radius:12px;background:var(--ink);color:#fff;padding:10px 12px;margin-top:12px}
 .timer-caption{font-size:12px;color:#e1dedc}
 .timer-box output{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
-.timer-buttons{display:flex;gap:6px;align-items:center}
+.timer-buttons{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
 .timer-buttons .button{white-space:normal}
 .form-note{margin:0!important}
 .plan-fields{grid-template-columns:repeat(3,minmax(0,1fr))}
