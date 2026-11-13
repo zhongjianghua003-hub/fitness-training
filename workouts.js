@@ -10,7 +10,7 @@
     {name:'全身基础', format:'质量优先 · 3 轮', moves:['12 次徒手深蹲','10 次桌边俯卧撑','12 次臀桥','20 秒平板支撑'],rest:'轮间休息 60–90 秒',goal:'最后几次有挑战，动作仍完整，约 12–18 分钟。',easy:'2 轮；支撑改为 15 秒。',hard:'4 轮，熟练者可轻负重深蹲。'},
     {name:'单侧控制',format:'质量优先 · 3 轮',moves:['10 次反向箭步蹲（每侧 5 次）','12 次臀桥','10 次桌边俯卧撑','20 秒侧平板支撑（每侧）'],rest:'轮间休息 60–90 秒',goal:'单侧稳定，最后一轮仍保持动作质量，约 15–20 分钟。',easy:'2 轮，箭步蹲扶稳；侧支撑每侧 10 秒。',hard:'4 轮，可用熟悉的轻负重。'},
     {name:'下肢与核心',format:'质量优先 · 3 轮',moves:['10 次坐站深蹲','12 次髋铰链','10 次反向箭步蹲（每侧 5 次）','20 秒平板支撑'],rest:'轮间休息 60–90 秒',goal:'保持膝髋控制，动作从容但有挑战，约 12–18 分钟。',easy:'2 轮，箭步蹲扶稳。',hard:'4 轮；熟练者可用轻哑铃硬拉代替徒手髋铰链。'},
-    {name:'上推与下蹲',format:'质量优先 · 4 组',moves:['10 次徒手深蹲','8 次俯卧撑','12 次臀桥','20 秒死虫式（左右交替）'],rest:'组间休息 60–90 秒',goal:'每组动作稳定，约 12–20 分钟。',easy:'2 组，俯卧撑靠墙。',hard:'4 组，熟练者可使用低桌或地面俯卧撑。'},
+    {name:'上推与下蹲',format:'质量优先 · 4 组',moves:['10 次徒手深蹲','8 次俯卧撑','12 次臀桥','20 秒死虫式（左右交替）'],rest:'组间休息 60–90 秒',goal:'每组动作稳定，约 12–20 分钟。',easy:'2 组，俯卧撑靠墙。',hard:'5 组，深蹲最低点停 2 秒，俯卧撑脚放在稳固低台上。'},
   ];
   const mixed = [
     {name:'十二分钟循环',format:'12 分钟循环 · 记录轮数',moves:['10 次徒手深蹲','8 次俯卧撑','10 次反向箭步蹲（每侧 5 次）','40 次原地快步（左右合计）'],rest:'按需短休，继续保持动作完整',goal:'前半段留力，后半段仍能持续移动。',easy:'8 分钟，俯卧撑改靠墙，每轮快步 30 次。',hard:'12 分钟，熟练者可用轻哑铃做深蹲。'},
@@ -31,15 +31,17 @@
   ];
   window.fitnessWorkout = (index, tier, scene) => {
     const day=index%7, week=Math.floor(index/7);
+    const deloadWeek=week%4===3;
     if(day===1||day===3) {
-      const distance=tier==='简单版'?'1–2 公里':tier==='熟练版'?'3–5 公里':'3 公里';
-      const indoor=tier==='简单版'?'原地走或踏步 10–15 分钟':tier==='熟练版'?'原地快步或踏步 25–35 分钟':'原地快步或踏步 20–30 分钟';
+      const level=deloadWeek?'简单版':tier;
+      const distance=level==='简单版'?'1–2 公里':level==='熟练版'?'3–5 公里':'3 公里';
+      const indoor=level==='简单版'?'原地走或踏步 10–15 分钟':level==='熟练版'?'原地快步或踏步 25–35 分钟':'原地快步或踏步 20–30 分钟';
       const training=scene==='home'?indoor:`轻松跑或走跑 ${distance}`;
-      const body=['轻松有氧',`${tier} · ${training}`,'','保持能说完整句子的速度。','跑前热身 5–8 分钟，结束后走路放松。','记录：跑步距离、用时或室内活动时长。'].join('\n');
-      return {name:'轻松有氧',level:tier,body};
+      const body=['轻松有氧',`${level}${deloadWeek?'（减量周）':''} · ${training}`,'','保持能说完整句子的速度。','跑前热身 5–8 分钟，结束后走路放松。','记录：跑步距离、用时或室内活动时长。'].join('\n');
+      return {name:'轻松有氧',level,body};
     }
-    const plan = day===0?conditioning[week%4]:day===2?strength[week%4]:day===4?mixed[week%4]:day===5?control[week%4]:recovery[day===1?0:day===3?1:2];
-    const deload=week%4===3 && [0,2,4,5].includes(day);
+    const plan = day===0?conditioning[week%4]:day===2?strength[week%4]:day===4?mixed[week%4]:day===5?control[week%4]:recovery[week%3];
+    const deload=deloadWeek && [0,2,4,5].includes(day);
     const level=deload?'简单版':tier;
     const option=level==='熟练版'?plan.hard:level==='简单版'?plan.easy:'按上述加强版完成。';
     const outdoor=scene==='outdoor'?'户外时，原地快步可以换成同等时间或次数的跑步／短距离往返跑，先确认场地安全。':'居家时原地快步可无跳跃完成，选择稳固的支撑物。';
@@ -70,6 +72,9 @@
       movements[2]='每轮做 60 次原地快步（左右合计）';
     } else if(level==='熟练版' && plan.name==='三段推进') {
       movements[0]='60 次原地高抬腿（左右合计）';
+    } else if(level==='熟练版' && plan.name==='上推与下蹲') {
+      movements[0]='10 次徒手深蹲（最低点停 2 秒）';
+      movements[1]='8 次脚垫高俯卧撑';
     }
     const goalLabel=level==='加强版'?'训练目标':'训练目标（时长为加强版参考）';
     const body=[plan.name,prescription,'',...movements,'',plan.rest,'',`${goalLabel}：${plan.goal}`,'',outdoor,'热身：训练前 6–8 分钟逐渐活动全身。结束后走动放松 5 分钟。',score].join('\n');
